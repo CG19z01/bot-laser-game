@@ -34,6 +34,27 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
 - Un commentaire uniquement si le POURQUOI n'est pas évident (contrainte
   cachée, workaround, comportement surprenant de l'API Discord par exemple).
 
+## Sécurité
+
+- Pour toute fonctionnalité qui stocke ou manipule des « éléments à
+  protéger » (tokens, IDs de rôles/salons sensibles, configuration
+  d'administration, données personnelles), vérifier où et comment ils sont
+  stockés (`.env` non commité, colonnes DB, variables en mémoire) et
+  s'assurer qu'ils ne fuient jamais dans un log, un message Discord ou un
+  commit.
+- Pour toute commande donnant accès à une action sensible (modération,
+  configuration du bot, suppression de messages, attribution de rôles,
+  gestion des membres), vérifier que la permission Discord requise est
+  bien posée (`setDefaultMemberPermissions` ou équivalent) — ne jamais
+  laisser une commande à fort impact accessible à `@everyone` par défaut
+  sans que ce soit un choix délibéré.
+- Vérifier qu'aucun texte libre fourni par un utilisateur n'est renvoyé
+  dans un message public sans `allowedMentions` restreint (risque de ping
+  `@everyone`/rôle non désiré).
+- Après toute modification touchant permissions, stockage de secrets ou
+  entrées utilisateur affichées publiquement, faire une relecture
+  sécurité ciblée avant de committer.
+
 ## Git & documentation
 
 - **Après chaque commit**, mettre à jour `README.md` pour qu'il reflète l'état
@@ -49,3 +70,5 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
 - Vérifier qu'aucun fichier ne dépasse 150 lignes.
 - Vérifier qu'aucune fonction n'est dupliquée.
 - Mettre à jour le README si la structure ou les commandes ont changé.
+- Vérifier les points de la section Sécurité (stockage des éléments à
+  protéger, permissions des commandes sensibles, mentions non protégées).
