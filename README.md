@@ -19,7 +19,7 @@ src/
 ├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/)
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
 ├── polls/                 émojis utilisés pour le vote par date
-├── commands/              commandes /autorole, /antispam et /sondage
+├── commands/              commandes /autorole, /antispam, /delete, /mute, /sondage
 ├── events/                ready, interactionCreate, guildMemberAdd,
 │                          messageCreate, messageReactionAdd
 └── utils/                 chargement dynamique des commands/events
@@ -58,22 +58,28 @@ src/
 
 - `/autorole set <role>` — définit le rôle attribué automatiquement aux
   nouveaux membres. Nécessite la permission "Gérer les rôles".
-- `/antispam set-limit <messages> <window>` — définit le seuil de
+- `/antispam set-limit <messages> <seconde>` — définit le seuil de
   déclenchement (nombre de messages sur une fenêtre en secondes, par
   serveur+salon+utilisateur). Par défaut : 5 messages / 5s.
-- `/antispam action delete` — en cas de dépassement, supprime uniquement
-  les messages en trop.
-- `/antispam action mute <duration>` — en cas de dépassement, supprime les
-  messages en trop et met l'utilisateur en timeout pour `duration` secondes.
+- `/mute <duration>` — en cas de dépassement du seuil anti-spam, l'action
+  devient : suppression des messages en trop + timeout de `duration`
+  secondes pour l'utilisateur.
+- `/delete [user] [nombre]` — comportement à double usage :
+  - sans aucun paramètre : configure l'action anti-spam sur « suppression
+    uniquement » (pas de timeout) en cas de dépassement du seuil ;
+  - avec `user` et/ou `nombre` : purge manuellement des messages du salon
+    courant (jusqu'à `nombre`, 10 par défaut si `user` est fourni seul ;
+    tous auteurs confondus si `user` est omis).
 
-Ces deux dernières commandes nécessitent la permission "Modérer les membres".
+Ces trois commandes nécessitent la permission "Modérer les membres".
 
-- `/sondage create <question> <dates> <seuil>` — crée un sondage avec 2 à
-  10 dates au format `JJ/MM/AAAA` séparées par des virgules. Chaque date
-  reçoit une réaction emoji numérotée. Dès que le total des réactions
-  (toutes dates confondues) atteint `seuil`, le sondage se clôture
-  automatiquement : le message est édité pour afficher la date ayant reçu
-  le plus de réactions, et une confirmation est postée dans le salon
+- `/sondage create <lieu> <ville> <dates> <nombre_personnes> <seuil>` —
+  crée un sondage pour une session avec 1 à 10 dates au format
+  `JJ/MM/AAAA` séparées par des points-virgules (`;`). Chaque date reçoit
+  une réaction emoji numérotée. Dès que le total des réactions (toutes
+  dates confondues) atteint `seuil`, le sondage se clôture automatiquement :
+  le message est édité pour afficher la date ayant reçu le plus de
+  réactions, et une confirmation est postée dans le salon
   `ADMIN_CHANNEL_ID`.
 
 ## Conventions

@@ -5,8 +5,8 @@ import { DATE_EMOJIS } from '../../polls/dateEmojis.js';
 const DATE_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
 
 function parseDates(raw) {
-  const dates = raw.split(',').map((d) => d.trim());
-  if (dates.length < 2 || dates.length > DATE_EMOJIS.length) return null;
+  const dates = raw.split(';').map((d) => d.trim());
+  if (dates.length < 1 || dates.length > DATE_EMOJIS.length) return null;
   if (dates.some((d) => !DATE_REGEX.test(d))) return null;
   return dates;
 }
@@ -18,15 +18,25 @@ const sondageCommand = {
     .addSubcommand((sub) =>
       sub
         .setName('create')
-        .setDescription('Crée un sondage avec plusieurs dates au choix')
+        .setDescription('Crée un sondage pour une session avec plusieurs dates au choix')
         .addStringOption((opt) =>
-          opt.setName('question').setDescription('Intitulé du sondage').setRequired(true)
+          opt.setName('lieu').setDescription('Nom du lieu').setRequired(true)
+        )
+        .addStringOption((opt) =>
+          opt.setName('ville').setDescription('Ville où se déroule la session').setRequired(true)
         )
         .addStringOption((opt) =>
           opt
             .setName('dates')
-            .setDescription('Dates séparées par des virgules (JJ/MM/AAAA), 2 à 10')
+            .setDescription('Dates séparées par des points-virgules (JJ/MM/AAAA), 1 à 10')
             .setRequired(true)
+        )
+        .addIntegerOption((opt) =>
+          opt
+            .setName('nombre_personnes')
+            .setDescription('Nombre de personnes pour la session')
+            .setRequired(true)
+            .setMinValue(1)
         )
         .addIntegerOption((opt) =>
           opt
@@ -37,22 +47,26 @@ const sondageCommand = {
         )
     ),
   async execute(interaction) {
-    const question = interaction.options.getString('question', true);
+    const lieu = interaction.options.getString('lieu', true);
+    const ville = interaction.options.getString('ville', true);
     const rawDates = interaction.options.getString('dates', true);
+    const nombrePersonnes = interaction.options.getInteger('nombre_personnes', true);
     const threshold = interaction.options.getInteger('seuil', true);
 
     const dates = parseDates(rawDates);
     if (!dates) {
       await interaction.reply({
         content:
-          'Format invalide. Fournis 2 à 10 dates au format JJ/MM/AAAA séparées par des virgules.',
+          'Format invalide. Fournis 1 à 10 dates au format JJ/MM/AAAA séparées par des points-virgules.',
         flags: MessageFlags.Ephemeral,
       });
       return;
     }
 
     const lines = dates.map((date, i) => `${DATE_EMOJIS[i]} ${date}`).join('\n');
-    await interaction.reply(`**${question}**\n\n${lines}`);
+    await interaction.reply(
+      `📍 **${lieu}**, ${ville}\n\n${lines}\n\n👥 ${nombrePersonnes} personnes`
+    );
     const message = await interaction.fetchReply();
 
     for (let i = 0; i < dates.length; i++) {
