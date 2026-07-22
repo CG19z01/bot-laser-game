@@ -1,6 +1,12 @@
 import 'dotenv/config';
 
-const REQUIRED_VARS = ['DISCORD_TOKEN', 'CLIENT_ID', 'GUILD_ID', 'ADMIN_CHANNEL_ID'];
+const REQUIRED_VARS = [
+  'DISCORD_TOKEN',
+  'CLIENT_ID',
+  'GUILD_ID',
+  'ADMIN_CHANNEL_ID',
+  'ROLE_CHANNEL_ID',
+];
 
 export function loadEnv() {
   for (const key of REQUIRED_VARS) {
@@ -13,5 +19,6 @@ export function loadEnv() {
     clientId: process.env.CLIENT_ID,
     guildId: process.env.GUILD_ID,
     adminChannelId: process.env.ADMIN_CHANNEL_ID,
+    roleChannelId: process.env.ROLE_CHANNEL_ID,
   };
 }

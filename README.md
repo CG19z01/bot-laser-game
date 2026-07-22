@@ -4,11 +4,13 @@ Bot Discord pour la gestion du Laser Game.
 
 ## État du projet
 
-Fonctionnalités disponibles : **auto-role** (attribution automatique d'un
-rôle aux nouveaux membres), **anti-spam** (limite de messages par
-utilisateur avec suppression et/ou timeout configurables), **sondages**
-(choix d'une date parmi plusieurs propositions par réactions) et
-**équipes aléatoires** (répartition au hasard d'une liste de joueurs).
+Fonctionnalités disponibles : **auto-role par réaction** (un membre obtient
+le rôle en réagissant à un message, le perd en retirant sa réaction —
+évite l'attribution automatique à des comptes bots qui rejoignent),
+**anti-spam** (limite de messages par utilisateur avec suppression et/ou
+timeout configurables), **sondages** (choix d'une date parmi plusieurs
+propositions par réactions) et **équipes aléatoires** (répartition au
+hasard d'une liste de joueurs).
 
 ## Structure du projet
 
@@ -19,11 +21,13 @@ src/
 ├── config/env.js          lecture des variables d'environnement
 ├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/)
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
+├── autorole/              émoji utilisé pour le rôle par réaction
 ├── polls/                 émojis utilisés pour le vote par date
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
 │                          /sondage, /equipes
-├── events/                ready, interactionCreate, guildMemberAdd,
-│                          messageCreate, messageReactionAdd
+├── events/                ready, interactionCreate, messageCreate,
+│                          pollReactionAdd, autoroleReactionAdd,
+│                          autoroleReactionRemove
 └── utils/                 chargement dynamique des commands/events
 ```
 
@@ -38,12 +42,14 @@ src/
   l'action `mute` est utilisée), **Ajouter des réactions** (sondages).
 - Un salon admin où le bot peut poster (confirmation de clôture des
   sondages) — son ID sera renseigné dans `ADMIN_CHANNEL_ID`.
+- Un salon dédié où le bot poste le message de rôle par réaction — son ID
+  sera renseigné dans `ROLE_CHANNEL_ID`.
 
 ## Installation
 
 1. `npm install`
 2. `cp .env.example .env` puis renseigner `DISCORD_TOKEN`, `CLIENT_ID`,
-   `GUILD_ID`, `ADMIN_CHANNEL_ID`
+   `GUILD_ID`, `ADMIN_CHANNEL_ID`, `ROLE_CHANNEL_ID`
 3. `npm run deploy-commands`
 4. `npm start`
 
@@ -55,11 +61,14 @@ src/
 | `CLIENT_ID` | Application ID |
 | `GUILD_ID` | ID du serveur Discord de développement |
 | `ADMIN_CHANNEL_ID` | ID du salon où sont postées les confirmations de clôture de sondage |
+| `ROLE_CHANNEL_ID` | ID du salon où est posté le message de rôle par réaction |
 
 ## Commandes disponibles
 
-- `/autorole set <role>` — définit le rôle attribué automatiquement aux
-  nouveaux membres. Nécessite la permission "Gérer les rôles".
+- `/autorole set <role>` — poste (ou remplace) dans `ROLE_CHANNEL_ID` un
+  message sur lequel réagir pour obtenir `role` ; retirer sa réaction
+  retire le rôle. Nécessite la permission "Gérer les rôles" ; refuse un
+  rôle disposant de la permission Administrateur.
 - `/antispam set-limit <messages> <seconde>` — définit le seuil de
   déclenchement (nombre de messages sur une fenêtre en secondes, par
   serveur+salon+utilisateur). Par défaut : 5 messages / 5s.
