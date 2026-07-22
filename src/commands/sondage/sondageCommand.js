@@ -5,7 +5,8 @@ import { DATE_EMOJIS } from '../../polls/dateEmojis.js';
 const DATE_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
 
 function parseDates(raw) {
-  const dates = raw.split(';').map((d) => d.trim());
+  const cleaned = raw.trim().replace(/;+\s*$/, '');
+  const dates = cleaned.split(';').map((d) => d.trim());
   if (dates.length < 1 || dates.length > DATE_EMOJIS.length) return null;
   if (dates.some((d) => !DATE_REGEX.test(d))) return null;
   return dates;
