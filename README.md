@@ -6,8 +6,9 @@ Bot Discord pour la gestion du Laser Game.
 
 Fonctionnalités disponibles : **auto-role** (attribution automatique d'un
 rôle aux nouveaux membres), **anti-spam** (limite de messages par
-utilisateur avec suppression et/ou timeout configurables) et **sondages**
-(choix d'une date parmi plusieurs propositions par réactions).
+utilisateur avec suppression et/ou timeout configurables), **sondages**
+(choix d'une date parmi plusieurs propositions par réactions) et
+**équipes aléatoires** (répartition au hasard d'une liste de joueurs).
 
 ## Structure du projet
 
@@ -19,7 +20,8 @@ src/
 ├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/)
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
 ├── polls/                 émojis utilisés pour le vote par date
-├── commands/              commandes /autorole, /antispam, /delete, /mute, /sondage
+├── commands/              commandes /autorole, /antispam, /delete, /mute,
+│                          /sondage, /equipes
 ├── events/                ready, interactionCreate, guildMemberAdd,
 │                          messageCreate, messageReactionAdd
 └── utils/                 chargement dynamique des commands/events
@@ -81,6 +83,12 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   le message est édité pour afficher la date ayant reçu le plus de
   réactions, et une confirmation est postée dans le salon
   `ADMIN_CHANNEL_ID`.
+
+- `/equipes <equipes> <nombre> <users>` — répartit aléatoirement les noms
+  fournis dans `users` (séparés par des virgules) en `equipes` équipes de
+  taille équilibrée. `nombre` doit correspondre exactement au nombre de
+  noms trouvés dans `users` (sert de vérification anti-erreur de saisie) ;
+  entre 6 et 40 joueurs.
 
 ## Conventions
 
