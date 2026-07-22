@@ -5,8 +5,9 @@ Bot Discord pour la gestion du Laser Game.
 ## État du projet
 
 Fonctionnalités disponibles : **auto-role** (attribution automatique d'un
-rôle aux nouveaux membres) et **anti-spam** (limite de messages par
-utilisateur avec suppression et/ou timeout configurables).
+rôle aux nouveaux membres), **anti-spam** (limite de messages par
+utilisateur avec suppression et/ou timeout configurables) et **sondages**
+(choix d'une date parmi plusieurs propositions par réactions).
 
 ## Structure du projet
 
@@ -15,10 +16,12 @@ src/
 ├── index.js               entrypoint
 ├── deployCommands.js      enregistrement des slash commands
 ├── config/env.js          lecture des variables d'environnement
-├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/)
+├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/)
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
-├── commands/              commandes /autorole et /antispam
-├── events/                ready, interactionCreate, guildMemberAdd, messageCreate
+├── polls/                 émojis utilisés pour le vote par date
+├── commands/              commandes /autorole, /antispam et /sondage
+├── events/                ready, interactionCreate, guildMemberAdd,
+│                          messageCreate, messageReactionAdd
 └── utils/                 chargement dynamique des commands/events
 ```
 
@@ -30,12 +33,15 @@ src/
   et l'intent privilégié **Server Members Intent** activé.
 - Permissions du bot sur le serveur : **Gérer les rôles** (auto-role),
   **Gérer les messages** et **Mute les membres (timeout)** (anti-spam, si
-  l'action `mute` est utilisée).
+  l'action `mute` est utilisée), **Ajouter des réactions** (sondages).
+- Un salon admin où le bot peut poster (confirmation de clôture des
+  sondages) — son ID sera renseigné dans `ADMIN_CHANNEL_ID`.
 
 ## Installation
 
 1. `npm install`
-2. `cp .env.example .env` puis renseigner `DISCORD_TOKEN`, `CLIENT_ID`, `GUILD_ID`
+2. `cp .env.example .env` puis renseigner `DISCORD_TOKEN`, `CLIENT_ID`,
+   `GUILD_ID`, `ADMIN_CHANNEL_ID`
 3. `npm run deploy-commands`
 4. `npm start`
 
@@ -46,6 +52,7 @@ src/
 | `DISCORD_TOKEN` | Token du bot (Developer Portal > Bot) |
 | `CLIENT_ID` | Application ID |
 | `GUILD_ID` | ID du serveur Discord de développement |
+| `ADMIN_CHANNEL_ID` | ID du salon où sont postées les confirmations de clôture de sondage |
 
 ## Commandes disponibles
 
@@ -60,6 +67,14 @@ src/
   messages en trop et met l'utilisateur en timeout pour `duration` secondes.
 
 Ces deux dernières commandes nécessitent la permission "Modérer les membres".
+
+- `/sondage create <question> <dates> <seuil>` — crée un sondage avec 2 à
+  10 dates au format `JJ/MM/AAAA` séparées par des virgules. Chaque date
+  reçoit une réaction emoji numérotée. Dès que le total des réactions
+  (toutes dates confondues) atteint `seuil`, le sondage se clôture
+  automatiquement : le message est édité pour afficher la date ayant reçu
+  le plus de réactions, et une confirmation est postée dans le salon
+  `ADMIN_CHANNEL_ID`.
 
 ## Conventions
 

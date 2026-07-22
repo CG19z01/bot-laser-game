@@ -14,5 +14,14 @@ export function initSchema() {
       action                TEXT NOT NULL DEFAULT 'delete',
       mute_duration_seconds INTEGER
     );
+
+    CREATE TABLE IF NOT EXISTS polls (
+      message_id TEXT PRIMARY KEY,
+      guild_id   TEXT NOT NULL,
+      channel_id TEXT NOT NULL,
+      dates      TEXT NOT NULL,
+      threshold  INTEGER NOT NULL,
+      closed     INTEGER NOT NULL DEFAULT 0
+    );
   `);
 }

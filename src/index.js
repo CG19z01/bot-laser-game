@@ -12,9 +12,11 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
   ],
 });
 
+client.env = env;
 client.commands = await loadCommands();
 await loadEvents(client);
 
