@@ -2,10 +2,13 @@ import { getDb } from './database.js';
 
 export function initSchema() {
   getDb().exec(`
-    CREATE TABLE IF NOT EXISTS autorole_config (
-      guild_id   TEXT PRIMARY KEY,
-      role_id    TEXT NOT NULL,
-      message_id TEXT
+    CREATE TABLE IF NOT EXISTS autorole_roles (
+      guild_id      TEXT NOT NULL,
+      emoji_key     TEXT NOT NULL,
+      emoji_display TEXT NOT NULL,
+      role_id       TEXT NOT NULL,
+      message_id    TEXT NOT NULL,
+      PRIMARY KEY (guild_id, emoji_key)
     );
 
     CREATE TABLE IF NOT EXISTS antispam_config (
@@ -25,9 +28,4 @@ export function initSchema() {
       closed     INTEGER NOT NULL DEFAULT 0
     );
   `);
-
-  const columns = getDb().prepare('PRAGMA table_info(autorole_config)').all();
-  if (!columns.some((column) => column.name === 'message_id')) {
-    getDb().exec('ALTER TABLE autorole_config ADD COLUMN message_id TEXT');
-  }
 }

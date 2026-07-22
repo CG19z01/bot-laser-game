@@ -4,8 +4,9 @@ Bot Discord pour la gestion du Laser Game.
 
 ## État du projet
 
-Fonctionnalités disponibles : **auto-role par réaction** (un membre obtient
-le rôle en réagissant à un message, le perd en retirant sa réaction —
+Fonctionnalités disponibles : **auto-role par réaction** (plusieurs rôles
+possibles, un émoji différent par rôle sur un même message ; un membre
+obtient le rôle associé en réagissant, le perd en retirant sa réaction —
 évite l'attribution automatique à des comptes bots qui rejoignent),
 **anti-spam** (limite de messages par utilisateur avec suppression et/ou
 timeout configurables), **sondages** (choix d'une date parmi plusieurs
@@ -21,7 +22,7 @@ src/
 ├── config/env.js          lecture des variables d'environnement
 ├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/)
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
-├── autorole/              émoji utilisé pour le rôle par réaction
+├── autorole/              normalisation des émojis pour le rôle par réaction
 ├── polls/                 émojis utilisés pour le vote par date
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
 │                          /sondage, /equipes
@@ -65,10 +66,12 @@ src/
 
 ## Commandes disponibles
 
-- `/autorole set <role>` — poste (ou remplace) dans `ROLE_CHANNEL_ID` un
-  message sur lequel réagir pour obtenir `role` ; retirer sa réaction
-  retire le rôle. Nécessite la permission "Gérer les rôles" ; refuse un
-  rôle disposant de la permission Administrateur.
+- `/autorole add <role> <emoji>` — associe `emoji` à `role` sur le message
+  de réaction dans `ROLE_CHANNEL_ID` (créé au premier appel, mis à jour
+  ensuite pour ajouter la ligne). Réagir avec `emoji` donne `role`,
+  retirer la réaction le retire. Rappeler la commande avec un émoji déjà
+  utilisé remplace le rôle associé. Nécessite la permission "Gérer les
+  rôles" ; refuse un rôle disposant de la permission Administrateur.
 - `/antispam set-limit <messages> <seconde>` — définit le seuil de
   déclenchement (nombre de messages sur une fenêtre en secondes, par
   serveur+salon+utilisateur). Par défaut : 5 messages / 5s.
