@@ -64,9 +64,10 @@ const sondageCommand = {
     }
 
     const lines = dates.map((date, i) => `${DATE_EMOJIS[i]} ${date}`).join('\n');
-    await interaction.reply(
-      `📍 **${lieu}**, ${ville}\n\n${lines}\n\n👥 ${nombrePersonnes} personnes`
-    );
+    await interaction.reply({
+      content: `📍 **${lieu}**, ${ville}\n\n${lines}\n\n👥 ${nombrePersonnes} personnes`,
+      allowedMentions: { parse: [] },
+    });
     const message = await interaction.fetchReply();
 
     for (let i = 0; i < dates.length; i++) {

@@ -31,9 +31,10 @@ export default {
 
     closePoll(message.id);
 
-    await message.edit(
-      `${message.content}\n\n🔒 **Sondage clos** — date retenue : ${poll.dates[winningIndex]}`
-    );
+    await message.edit({
+      content: `${message.content}\n\n🔒 **Sondage clos** — date retenue : ${poll.dates[winningIndex]}`,
+      allowedMentions: { parse: [] },
+    });
 
     const adminChannel = await message.client.channels.fetch(message.client.env.adminChannelId);
     await adminChannel.send(

@@ -16,6 +16,16 @@ const autoroleCommand = {
     ),
   async execute(interaction) {
     const role = interaction.options.getRole('role', true);
+
+    if (role.permissions.has(PermissionFlagsBits.Administrator)) {
+      await interaction.reply({
+        content:
+          "Impossible d'attribuer automatiquement un rôle disposant de la permission Administrateur.",
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     setAutoroleRoleId(interaction.guildId, role.id);
     await interaction.reply({
       content: `Le rôle ${role} sera désormais attribué automatiquement aux nouveaux membres.`,
