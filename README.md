@@ -155,7 +155,7 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   restreint). Vérifier les permissions existantes des rôles cibles sur
   ce salon avant de lancer la commande si elles diffèrent volontairement
   de `source`.
-  Réservée aux rôles **Administrateur** et **STAFF**.
+  Réservée au rôle **Administrateur**.
 
 ## Conventions
 

@@ -5,7 +5,7 @@ import { resolveRolesByNames } from '../../permissions/resolveRolesByNames.js';
 import { resolveChannelsByNames } from '../../permissions/resolveChannelsByNames.js';
 import { buildOverwriteOptions } from '../../permissions/buildOverwriteOptions.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
+const ALLOWED_ROLE_NAMES = ['Administrateur'];
 
 const copierPermissionsCommand = {
   data: new SlashCommandBuilder()
@@ -34,7 +34,7 @@ const copierPermissionsCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
-      await interaction.editReply({ content: 'Réservé aux rôles Administrateur et STAFF.' });
+      await interaction.editReply({ content: 'Réservé au rôle Administrateur.' });
       return;
     }
 
