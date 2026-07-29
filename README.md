@@ -149,6 +149,12 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   entrée non reconnue est listée dans le message d'erreur (pratique pour
   repérer un `;` oublié). Refuse si `source` a la permission
   Administrateur, ou si `salons_cibles` est fourni sans `salon`.
+  ⚠️ **Remplacement exact, pas une fusion** : sur le(s) salon(s) ciblé(s),
+  toute permission qu'un rôle cible avait déjà et que `source` n'a pas
+  est effacée (remplacée par l'état de `source`, qui peut être plus
+  restreint). Vérifier les permissions existantes des rôles cibles sur
+  ce salon avant de lancer la commande si elles diffèrent volontairement
+  de `source`.
   Réservée aux rôles **Administrateur** et **STAFF**.
 
 ## Conventions

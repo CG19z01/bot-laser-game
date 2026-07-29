@@ -61,7 +61,7 @@ const copierPermissionsCommand = {
       return;
     }
     const targets = resolved.map((r) => r.role);
-    const targetLabel = targets.map((role) => role.name).join(', ');
+    const targetLabel = targets.map((role) => `<@&${role.id}>`).join(', ');
 
     const sourceSalon = interaction.options.getChannel('salon');
     const destSalonNames = interaction.options
@@ -90,12 +90,13 @@ const copierPermissionsCommand = {
         return;
       }
       const targetSalons = resolvedSalons.map((r) => r.channel);
-      const salonLabel = targetSalons.map((salon) => salon.name).join(', ');
+      const salonLabel = targetSalons.map((salon) => `<#${salon.id}>`).join(', ');
 
       const overwrite = sourceSalon.permissionOverwrites.cache.get(source.id);
       if (!overwrite) {
         await interaction.editReply({
           content: `${source} n'a aucune permission spécifique sur ${sourceSalon}.`,
+          allowedMentions: { parse: [] },
         });
         return;
       }
@@ -115,7 +116,8 @@ const copierPermissionsCommand = {
       );
 
       await interaction.editReply({
-        content: `Permissions de ${source} sur ${sourceSalon} copiées vers ${targets.length} rôle(s) sur ${targetSalons.length} salon(s) : ${salonLabel}.`,
+        content: `Permissions de ${source} sur ${sourceSalon} copiées vers ${targetLabel} sur ${salonLabel}.`,
+        allowedMentions: { parse: [] },
       });
       return;
     }
@@ -130,7 +132,8 @@ const copierPermissionsCommand = {
     );
 
     await interaction.editReply({
-      content: `Autorisations de ${source} copiées vers ${targets.length} rôle(s) : ${targetLabel}.`,
+      content: `Autorisations de ${source} copiées vers ${targetLabel}.`,
+      allowedMentions: { parse: [] },
     });
   },
 };
