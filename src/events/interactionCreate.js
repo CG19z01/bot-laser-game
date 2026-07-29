@@ -13,10 +13,14 @@ export default {
     } catch (error) {
       console.error(error);
       const reply = { content: 'Une erreur est survenue.', flags: MessageFlags.Ephemeral };
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp(reply);
-      } else {
-        await interaction.reply(reply);
+      try {
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp(reply);
+        } else {
+          await interaction.reply(reply);
+        }
+      } catch (replyError) {
+        console.error("[interactionCreate] Impossible d'envoyer le message d'erreur:", replyError.message);
       }
     }
   },

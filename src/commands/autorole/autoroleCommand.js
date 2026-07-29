@@ -20,13 +20,14 @@ const autoroleCommand = {
         )
     ),
   async execute(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
     const role = interaction.options.getRole('role', true);
     const emojiDisplay = interaction.options.getString('emoji', true);
 
     if (role.permissions.has(PermissionFlagsBits.Administrator)) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "Impossible de proposer un rôle disposant de la permission Administrateur.",
-        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -41,21 +42,26 @@ const autoroleCommand = {
       { emojiDisplay, roleId: role.id },
     ];
     const lines = updatedRoles.map((r) => `${r.emojiDisplay} → <@&${r.roleId}>`).join('\n');
-    const content = `Réagis pour obtenir ton rôle :\n\n${lines}`;
+    const content = `Choisis ta promo en cliquant sur les émojis :\n\n${lines}`;
 
-    const message = messageId
-      ? await (await channel.messages.fetch(messageId)).edit({
-          content,
-          allowedMentions: { parse: [] },
-        })
-      : await channel.send({ content, allowedMentions: { parse: [] } });
+    let message = null;
+    if (messageId) {
+      try {
+        message = await channel.messages.fetch(messageId);
+        await message.edit({ content, allowedMentions: { parse: [] } });
+      } catch {
+        message = null;
+      }
+    }
+    if (!message) {
+      message = await channel.send({ content, allowedMentions: { parse: [] } });
+    }
 
     await message.react(emojiDisplay);
     upsertAutoroleRole(interaction.guildId, emojiKey, emojiDisplay, role.id, message.id);
 
-    await interaction.reply({
+    await interaction.editReply({
       content: `Rôle ${role} associé à ${emojiDisplay} dans <#${channel.id}>.`,
-      flags: MessageFlags.Ephemeral,
     });
   },
 };

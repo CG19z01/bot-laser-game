@@ -68,10 +68,12 @@ src/
 
 - `/autorole add <role> <emoji>` — associe `emoji` à `role` sur le message
   de réaction dans `ROLE_CHANNEL_ID` (créé au premier appel, mis à jour
-  ensuite pour ajouter la ligne). Réagir avec `emoji` donne `role`,
+  ensuite pour ajouter une ligne). Réagir avec `emoji` donne `role`,
   retirer la réaction le retire. Rappeler la commande avec un émoji déjà
-  utilisé remplace le rôle associé. Nécessite la permission "Gérer les
-  rôles" ; refuse un rôle disposant de la permission Administrateur.
+  utilisé remplace le rôle associé. Pensé pour être appelé une fois par
+  rôle (ex: une fois par promo) sans jamais nécessiter de changement de
+  code quand de nouveaux rôles s'ajoutent. Nécessite la permission "Gérer
+  les rôles" ; refuse un rôle disposant de la permission Administrateur.
 - `/antispam set-limit <messages> <seconde>` — définit le seuil de
   déclenchement (nombre de messages sur une fenêtre en secondes, par
   serveur+salon+utilisateur). Par défaut : 5 messages / 5s.
