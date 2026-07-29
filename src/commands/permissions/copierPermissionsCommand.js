@@ -2,15 +2,10 @@ import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.
 import { sendLog } from '../../logs/sendLog.js';
 import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
 import { resolveRolesByNames } from '../../permissions/resolveRolesByNames.js';
+import { resolveChannelsByNames } from '../../permissions/resolveChannelsByNames.js';
+import { buildOverwriteOptions } from '../../permissions/buildOverwriteOptions.js';
 
 const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
-
-function buildOverwriteOptions(overwrite) {
-  const options = {};
-  for (const flag of overwrite.allow.toArray()) options[flag] = true;
-  for (const flag of overwrite.deny.toArray()) options[flag] = false;
-  return options;
-}
 
 const copierPermissionsCommand = {
   data: new SlashCommandBuilder()
@@ -30,10 +25,10 @@ const copierPermissionsCommand = {
         .setName('salon')
         .setDescription('Si fourni, copie uniquement les permissions de ce salon (pas les autorisations globales)')
     )
-    .addChannelOption((opt) =>
+    .addStringOption((opt) =>
       opt
-        .setName('salon_cible')
-        .setDescription('Salon destination si différent de "salon" (nécessite "salon")')
+        .setName('salons_cibles')
+        .setDescription('Salons destination si différents de "salon", séparés par ";" (nécessite "salon")')
     ),
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -69,9 +64,13 @@ const copierPermissionsCommand = {
     const targetLabel = targets.map((role) => role.name).join(', ');
 
     const sourceSalon = interaction.options.getChannel('salon');
-    const destSalon = interaction.options.getChannel('salon_cible');
+    const destSalonNames = interaction.options
+      .getString('salons_cibles')
+      ?.split(';')
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0) ?? [];
 
-    if (destSalon && !sourceSalon) {
+    if (destSalonNames.length > 0 && !sourceSalon) {
       await interaction.editReply({
         content: 'Précise "salon" pour indiquer de quel salon copier les permissions.',
       });
@@ -79,7 +78,20 @@ const copierPermissionsCommand = {
     }
 
     if (sourceSalon) {
-      const targetSalon = destSalon ?? sourceSalon;
+      const resolvedSalons =
+        destSalonNames.length > 0
+          ? resolveChannelsByNames(interaction.guild, destSalonNames)
+          : [{ raw: sourceSalon.name, channel: sourceSalon }];
+      const missingSalons = resolvedSalons.filter((r) => !r.channel);
+      if (missingSalons.length > 0) {
+        await interaction.editReply({
+          content: `Salon(s) introuvable(s) : ${missingSalons.map((m) => m.raw).join(', ')}.`,
+        });
+        return;
+      }
+      const targetSalons = resolvedSalons.map((r) => r.channel);
+      const salonLabel = targetSalons.map((salon) => salon.name).join(', ');
+
       const overwrite = sourceSalon.permissionOverwrites.cache.get(source.id);
       if (!overwrite) {
         await interaction.editReply({
@@ -89,17 +101,21 @@ const copierPermissionsCommand = {
       }
 
       const options = buildOverwriteOptions(overwrite);
-      for (const target of targets) {
-        await targetSalon.permissionOverwrites.edit(target, options);
+      for (const targetSalon of targetSalons) {
+        for (const target of targets) {
+          // .create() replaces the target's overwrite entirely; .edit() merges
+          // with whatever it already had, which silently mixes in stale bits.
+          await targetSalon.permissionOverwrites.create(target, options);
+        }
       }
 
       await sendLog(
         interaction.client,
-        `🔑 ${interaction.user.tag} a copié les permissions de <@&${source.id}> sur <#${sourceSalon.id}> vers ${targetLabel} sur <#${targetSalon.id}>.`
+        `🔑 ${interaction.user.tag} a copié les permissions de <@&${source.id}> sur <#${sourceSalon.id}> vers ${targetLabel} sur ${salonLabel}.`
       );
 
       await interaction.editReply({
-        content: `Permissions de ${source} sur ${sourceSalon} copiées vers ${targets.length} rôle(s) sur ${targetSalon} : ${targetLabel}.`,
+        content: `Permissions de ${source} sur ${sourceSalon} copiées vers ${targets.length} rôle(s) sur ${targetSalons.length} salon(s) : ${salonLabel}.`,
       });
       return;
     }

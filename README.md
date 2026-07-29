@@ -135,17 +135,21 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   contrôle la visibilité de la commande). Le bot doit lui-même avoir la
   permission "Gérer les salons" sur le serveur.
 
-- `/copier-permissions <source> <cibles> [salon] [salon_cible]` — copie
-  les autorisations du rôle `source` vers chaque rôle listé dans
-  `cibles` (noms exacts séparés par `;`). Sans `salon` : copie les
-  autorisations globales du serveur (remplace entièrement celles des
-  rôles cibles, pas une fusion). Avec `salon` : copie uniquement la
-  permission spécifique de `source` sur ce salon (refuse si `source`
-  n'en a pas) ; par défaut appliquée aux rôles cibles sur ce même salon,
-  ou sur `salon_cible` si fourni (permet de copier d'un salon vers un
-  autre). Refuse si `source` a la permission Administrateur, si
-  `salon_cible` est fourni sans `salon`, ou si l'un des rôles cibles
-  n'existe pas. Réservée aux rôles **Administrateur** et **STAFF**.
+- `/copier-permissions <source> <cibles> [salon] [salons_cibles]` —
+  copie les autorisations du rôle `source` vers chaque rôle listé dans
+  `cibles` (noms ou mentions `@rôle`, séparés par `;`). Sans `salon` :
+  copie les autorisations globales du serveur (remplace entièrement
+  celles des rôles cibles, pas une fusion). Avec `salon` : copie
+  uniquement la permission spécifique de `source` sur ce salon (refuse
+  si `source` n'en a pas) ; par défaut appliquée aux rôles cibles sur ce
+  même salon, ou sur chaque salon listé dans `salons_cibles` (noms ou
+  mentions `#salon`, séparés par `;`) si fourni — permet de copier vers
+  plusieurs salons en un seul appel. `cibles` et `salons_cibles`
+  acceptent aussi bien un nom exact qu'une mention Discord ; toute
+  entrée non reconnue est listée dans le message d'erreur (pratique pour
+  repérer un `;` oublié). Refuse si `source` a la permission
+  Administrateur, ou si `salons_cibles` est fourni sans `salon`.
+  Réservée aux rôles **Administrateur** et **STAFF**.
 
 ## Conventions
 
