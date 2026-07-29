@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { createPoll } from '../../db/polls/createPoll.js';
+import { sendLog } from '../../logs/sendLog.js';
 import { DATE_EMOJIS } from '../../polls/dateEmojis.js';
 
 const DATE_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
@@ -76,6 +77,11 @@ const sondageCommand = {
     }
 
     createPoll(message.id, interaction.guildId, interaction.channelId, dates, threshold);
+
+    await sendLog(
+      interaction.client,
+      `🗳️ ${interaction.user.tag} a créé un sondage "${lieu}, ${ville}" (${dates.length} date(s), seuil ${threshold}) dans <#${interaction.channelId}>.`
+    );
   },
 };
 

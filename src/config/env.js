@@ -6,6 +6,7 @@ const REQUIRED_VARS = [
   'GUILD_ID',
   'ADMIN_CHANNEL_ID',
   'ROLE_CHANNEL_ID',
+  'LOG_CHANNEL_ID',
 ];
 
 export function loadEnv() {
@@ -20,5 +21,6 @@ export function loadEnv() {
     guildId: process.env.GUILD_ID,
     adminChannelId: process.env.ADMIN_CHANNEL_ID,
     roleChannelId: process.env.ROLE_CHANNEL_ID,
+    logChannelId: process.env.LOG_CHANNEL_ID,
   };
 }

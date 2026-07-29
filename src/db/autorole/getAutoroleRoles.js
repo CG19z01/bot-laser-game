@@ -3,7 +3,7 @@ import { getDb } from '../database.js';
 export function getAutoroleRoles(guildId) {
   return getDb()
     .prepare(
-      'SELECT emoji_key, emoji_display, role_id, message_id FROM autorole_roles WHERE guild_id = ?'
+      'SELECT emoji_key, emoji_display, role_id, message_id FROM autorole_roles WHERE guild_id = ? ORDER BY position ASC'
     )
     .all(guildId)
     .map((row) => ({

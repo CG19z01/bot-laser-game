@@ -2,6 +2,7 @@ import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.
 import { getAutoroleRoles } from '../../db/autorole/getAutoroleRoles.js';
 import { upsertAutoroleRole } from '../../db/autorole/upsertAutoroleRole.js';
 import { normalizeEmoji } from '../../autorole/normalizeEmoji.js';
+import { sendLog } from '../../logs/sendLog.js';
 
 const autoroleCommand = {
   data: new SlashCommandBuilder()
@@ -59,6 +60,11 @@ const autoroleCommand = {
 
     await message.react(emojiDisplay);
     upsertAutoroleRole(interaction.guildId, emojiKey, emojiDisplay, role.id, message.id);
+
+    await sendLog(
+      interaction.client,
+      `⚙️ ${interaction.user.tag} a associé ${emojiDisplay} au rôle <@&${role.id}> (\`/autorole add\`).`
+    );
 
     await interaction.editReply({
       content: `Rôle ${role} associé à ${emojiDisplay} dans <#${channel.id}>.`,

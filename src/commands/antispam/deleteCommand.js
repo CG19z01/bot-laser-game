@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { setAntispamAction } from '../../db/antispam/setAntispamAction.js';
+import { sendLog } from '../../logs/sendLog.js';
 
 const DEFAULT_USER_DELETE_COUNT = 10;
 
@@ -56,6 +57,11 @@ const deleteCommand = {
 
     const count = nombre ?? DEFAULT_USER_DELETE_COUNT;
     const deletedCount = await purgeMessages(interaction.channel, count, user?.id);
+
+    await sendLog(
+      interaction.client,
+      `🧹 ${interaction.user.tag} a purgé ${deletedCount} message(s)${user ? ` de ${user.tag}` : ''} dans <#${interaction.channel.id}>.`
+    );
 
     await interaction.reply({
       content: `${deletedCount} message(s) supprimé(s)${user ? ` de ${user}` : ''}.`,

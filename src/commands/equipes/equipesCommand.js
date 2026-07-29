@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
+import { sendLog } from '../../logs/sendLog.js';
 
 function shuffle(array) {
   const result = [...array];
@@ -67,6 +68,11 @@ const equipesCommand = {
     const content = teams.map((team, i) => `**Équipe ${i + 1}**\n${team.join('\n')}`).join('\n\n');
 
     await interaction.reply({ content, allowedMentions: { parse: [] } });
+
+    await sendLog(
+      interaction.client,
+      `🎲 ${interaction.user.tag} a généré ${teamCount} équipes pour ${names.length} joueurs dans <#${interaction.channelId}>.`
+    );
   },
 };
 

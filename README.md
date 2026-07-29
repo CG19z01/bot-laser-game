@@ -24,8 +24,9 @@ src/
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
 ├── autorole/              normalisation des émojis pour le rôle par réaction
 ├── polls/                 émojis utilisés pour le vote par date
+├── logs/                  envoi des messages de log vers LOG_CHANNEL_ID
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
-│                          /sondage, /equipes
+│                          /sondage, /equipes, /dupliquer
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
@@ -40,17 +41,20 @@ src/
   et l'intent privilégié **Server Members Intent** activé.
 - Permissions du bot sur le serveur : **Gérer les rôles** (auto-role),
   **Gérer les messages** et **Mute les membres (timeout)** (anti-spam, si
-  l'action `mute` est utilisée), **Ajouter des réactions** (sondages).
+  l'action `mute` est utilisée), **Ajouter des réactions** (sondages),
+  **Gérer les salons** (`/dupliquer`).
 - Un salon admin où le bot peut poster (confirmation de clôture des
   sondages) — son ID sera renseigné dans `ADMIN_CHANNEL_ID`.
 - Un salon dédié où le bot poste le message de rôle par réaction — son ID
   sera renseigné dans `ROLE_CHANNEL_ID`.
+- Un salon de logs (ex: `#logs`) où le bot poste son journal d'activité —
+  son ID sera renseigné dans `LOG_CHANNEL_ID`.
 
 ## Installation
 
 1. `npm install`
 2. `cp .env.example .env` puis renseigner `DISCORD_TOKEN`, `CLIENT_ID`,
-   `GUILD_ID`, `ADMIN_CHANNEL_ID`, `ROLE_CHANNEL_ID`
+   `GUILD_ID`, `ADMIN_CHANNEL_ID`, `ROLE_CHANNEL_ID`, `LOG_CHANNEL_ID`
 3. `npm run deploy-commands`
 4. `npm start`
 
@@ -63,6 +67,16 @@ src/
 | `GUILD_ID` | ID du serveur Discord de développement |
 | `ADMIN_CHANNEL_ID` | ID du salon où sont postées les confirmations de clôture de sondage |
 | `ROLE_CHANNEL_ID` | ID du salon où est posté le message de rôle par réaction |
+| `LOG_CHANNEL_ID` | ID du salon où est posté le journal d'activité du bot |
+
+## Journal d'activité (logs)
+
+Le bot poste dans `LOG_CHANNEL_ID` : connexion/déconnexion du bot,
+erreurs de commande, attribution/retrait de rôle par réaction,
+modification de `/autorole add`, timeout anti-spam, purge manuelle via
+`/delete`, création et clôture de sondage, génération d'équipes,
+duplication de catégorie, et tentative de `/dupliquer` sans le rôle
+requis.
 
 ## Commandes disponibles
 
@@ -103,6 +117,19 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   taille équilibrée. `nombre` doit correspondre exactement au nombre de
   noms trouvés dans `users` (sert de vérification anti-erreur de saisie) ;
   entre 6 et 40 joueurs.
+
+- `/dupliquer <categorie> <nom> [roles]` — duplique la catégorie choisie
+  sous le nom `nom`, ainsi que tous les salons qu'elle contient (pas les
+  messages). Les permissions ne sont **pas** copiées depuis la source :
+  la nouvelle catégorie et ses salons sont configurés en privé — refusés
+  à `@everyone`, autorisés (voir, écrire, poster images/émojis externes)
+  uniquement pour **Administrateur**, **STAFF**, et les rôles listés dans
+  `roles` (noms exacts séparés par `;`, ex: `P1 2026`). La commande
+  échoue si l'un des rôles nommés n'existe pas. Réservée aux membres
+  ayant le rôle **Administrateur** ou **STAFF** (vérifié par nom de
+  rôle, en plus de la permission Discord "Gérer les salons" qui
+  contrôle la visibilité de la commande). Le bot doit lui-même avoir la
+  permission "Gérer les salons" sur le serveur.
 
 ## Conventions
 

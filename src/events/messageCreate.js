@@ -1,6 +1,7 @@
 import { Events } from 'discord.js';
 import { getAntispamConfig } from '../db/antispam/getAntispamConfig.js';
 import { trackAndCheckSpam } from '../antispam/trackAndCheckSpam.js';
+import { sendLog } from '../logs/sendLog.js';
 
 export default {
   name: Events.MessageCreate,
@@ -21,6 +22,10 @@ export default {
 
     try {
       await message.member?.timeout(config.muteDurationSeconds * 1000, 'Anti-spam');
+      await sendLog(
+        message.client,
+        `🔇 ${message.author.tag} mis en timeout ${config.muteDurationSeconds}s pour spam dans <#${message.channel.id}>.`
+      );
     } catch (error) {
       console.error('[antispam] Timeout impossible:', error.message);
     }

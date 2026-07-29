@@ -8,6 +8,7 @@ export function initSchema() {
       emoji_display TEXT NOT NULL,
       role_id       TEXT NOT NULL,
       message_id    TEXT NOT NULL,
+      position      INTEGER NOT NULL DEFAULT 0,
       PRIMARY KEY (guild_id, emoji_key)
     );
 
@@ -28,4 +29,16 @@ export function initSchema() {
       closed     INTEGER NOT NULL DEFAULT 0
     );
   `);
+
+  const columns = getDb().prepare('PRAGMA table_info(autorole_roles)').all();
+  if (!columns.some((column) => column.name === 'position')) {
+    getDb().exec(`
+      ALTER TABLE autorole_roles ADD COLUMN position INTEGER NOT NULL DEFAULT 0;
+      UPDATE autorole_roles
+      SET position = (
+        SELECT COUNT(*) FROM autorole_roles AS r2
+        WHERE r2.guild_id = autorole_roles.guild_id AND r2.rowid <= autorole_roles.rowid
+      ) - 1;
+    `);
+  }
 }

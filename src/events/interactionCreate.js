@@ -1,4 +1,5 @@
 import { Events, MessageFlags } from 'discord.js';
+import { sendLog } from '../logs/sendLog.js';
 
 export default {
   name: Events.InteractionCreate,
@@ -12,6 +13,10 @@ export default {
       await command.execute(interaction);
     } catch (error) {
       console.error(error);
+      await sendLog(
+        interaction.client,
+        `🟠 Erreur sur \`/${interaction.commandName}\` (${interaction.user.tag}) : ${error.message}`
+      );
       const reply = { content: 'Une erreur est survenue.', flags: MessageFlags.Ephemeral };
       try {
         if (interaction.replied || interaction.deferred) {

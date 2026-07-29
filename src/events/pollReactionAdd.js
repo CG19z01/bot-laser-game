@@ -2,6 +2,7 @@ import { Events } from 'discord.js';
 import { getPoll } from '../db/polls/getPoll.js';
 import { closePoll } from '../db/polls/closePoll.js';
 import { DATE_EMOJIS } from '../polls/dateEmojis.js';
+import { sendLog } from '../logs/sendLog.js';
 
 export default {
   name: Events.MessageReactionAdd,
@@ -39,6 +40,11 @@ export default {
     const adminChannel = await message.client.channels.fetch(message.client.env.adminChannelId);
     await adminChannel.send(
       `Sondage clos dans <#${poll.channelId}> — date retenue : **${poll.dates[winningIndex]}** (${total} réactions).`
+    );
+
+    await sendLog(
+      message.client,
+      `🔒 Sondage clos dans <#${poll.channelId}> — date retenue : ${poll.dates[winningIndex]} (${total} réactions).`
     );
   },
 };
