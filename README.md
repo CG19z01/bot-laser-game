@@ -27,7 +27,8 @@ src/
 ├── logs/                  envoi des messages de log vers LOG_CHANNEL_ID
 ├── permissions/           vérification de rôle par nom (STAFF, Référant...)
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
-│                          /sondage, /equipes, /dupliquer
+│                          /sondage, /equipes, /dupliquer,
+│                          /copier-permissions
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
@@ -133,6 +134,18 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   rôle, en plus de la permission Discord "Gérer les salons" qui
   contrôle la visibilité de la commande). Le bot doit lui-même avoir la
   permission "Gérer les salons" sur le serveur.
+
+- `/copier-permissions <source> <cibles> [salon] [salon_cible]` — copie
+  les autorisations du rôle `source` vers chaque rôle listé dans
+  `cibles` (noms exacts séparés par `;`). Sans `salon` : copie les
+  autorisations globales du serveur (remplace entièrement celles des
+  rôles cibles, pas une fusion). Avec `salon` : copie uniquement la
+  permission spécifique de `source` sur ce salon (refuse si `source`
+  n'en a pas) ; par défaut appliquée aux rôles cibles sur ce même salon,
+  ou sur `salon_cible` si fourni (permet de copier d'un salon vers un
+  autre). Refuse si `source` a la permission Administrateur, si
+  `salon_cible` est fourni sans `salon`, ou si l'un des rôles cibles
+  n'existe pas. Réservée aux rôles **Administrateur** et **STAFF**.
 
 ## Conventions
 

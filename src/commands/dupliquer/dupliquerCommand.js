@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
 import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { resolveRolesByNames } from '../../permissions/resolveRolesByNames.js';
 
 const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
 const ACCESS_PERMISSIONS = [
@@ -59,12 +60,15 @@ const dupliquerCommand = {
         .filter((name) => name.length > 0) ?? [];
 
     const roleNames = [...ALLOWED_ROLE_NAMES, ...extraRoleNames];
-    const roles = roleNames.map((name) => interaction.guild.roles.cache.find((r) => r.name === name));
-    const missingIndex = roles.findIndex((role) => !role);
-    if (missingIndex !== -1) {
-      await interaction.editReply({ content: `Aucun rôle nommé "${roleNames[missingIndex]}" trouvé.` });
+    const resolved = resolveRolesByNames(interaction.guild, roleNames);
+    const missing = resolved.filter((r) => !r.role);
+    if (missing.length > 0) {
+      await interaction.editReply({
+        content: `Rôle(s) introuvable(s) : ${missing.map((m) => m.raw).join(', ')}.`,
+      });
       return;
     }
+    const roles = resolved.map((r) => r.role);
 
     const overwrites = buildOverwrites(interaction.guild.roles.everyone.id, roles);
 
@@ -78,7 +82,7 @@ const dupliquerCommand = {
 
     await sendLog(
       interaction.client,
-      `📁 ${interaction.user.tag} a dupliqué "${source.name}" en "${newName}" (${children.length} salon(s), rôles: ${roleNames.join(', ')}).`
+      `📁 ${interaction.user.tag} a dupliqué "${source.name}" en "${newName}" (${children.length} salon(s), rôles: ${roles.map((r) => r.name).join(', ')}).`
     );
 
     await interaction.editReply({
