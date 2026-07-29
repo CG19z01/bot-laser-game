@@ -25,6 +25,7 @@ src/
 ├── autorole/              normalisation des émojis pour le rôle par réaction
 ├── polls/                 émojis utilisés pour le vote par date
 ├── logs/                  envoi des messages de log vers LOG_CHANNEL_ID
+├── permissions/           vérification de rôle par nom (STAFF, Référant...)
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
 │                          /sondage, /equipes, /dupliquer
 ├── events/                ready, interactionCreate, messageCreate,
@@ -110,13 +111,15 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   dates confondues) atteint `seuil`, le sondage se clôture automatiquement :
   le message est édité pour afficher la date ayant reçu le plus de
   réactions, et une confirmation est postée dans le salon
-  `ADMIN_CHANNEL_ID`.
+  `ADMIN_CHANNEL_ID`. Réservée aux rôles **Administrateur**, **STAFF**
+  et **Référant**.
 
 - `/equipes <equipes> <nombre> <users>` — répartit aléatoirement les noms
   fournis dans `users` (séparés par des virgules) en `equipes` équipes de
   taille équilibrée. `nombre` doit correspondre exactement au nombre de
   noms trouvés dans `users` (sert de vérification anti-erreur de saisie) ;
-  entre 6 et 40 joueurs.
+  entre 6 et 40 joueurs. Réservée aux rôles **Administrateur**, **STAFF**
+  et **Référant**.
 
 - `/dupliquer <categorie> <nom> [roles]` — duplique la catégorie choisie
   sous le nom `nom`, ainsi que tous les salons qu'elle contient (pas les

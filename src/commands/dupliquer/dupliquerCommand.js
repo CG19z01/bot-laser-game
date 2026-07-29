@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
+import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
 
 const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
 const ACCESS_PERMISSIONS = [
@@ -39,10 +40,7 @@ const dupliquerCommand = {
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    const isAllowed = interaction.member.roles.cache.some((role) =>
-      ALLOWED_ROLE_NAMES.includes(role.name)
-    );
-    if (!isAllowed) {
+    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
       await sendLog(
         interaction.client,
         `⛔ ${interaction.user.tag} a tenté \`/dupliquer\` sans le rôle Administrateur/STAFF.`
