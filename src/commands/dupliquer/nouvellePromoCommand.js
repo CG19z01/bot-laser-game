@@ -1,4 +1,4 @@
-// Duplique une catégorie de promo comme /perm, mais au lieu d'un jeu de
+// Duplique une catégorie de promo comme /copie-cat, mais au lieu d'un jeu de
 // permissions fixe, copie fidèlement les permissions existantes de chaque
 // salon source et substitue uniquement le rôle de promo (role_source ->
 // role_cible) — STAFF, Référant et tout autre rôle configuré sur la source

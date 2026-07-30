@@ -20,7 +20,7 @@ function buildOverwrites(everyoneId, roles) {
 
 const dupliquerCommand = {
   data: new SlashCommandBuilder()
-    .setName('perm')
+    .setName('copie-cat')
     .setDescription('Duplique une catégorie et tous ses salons')
     .setDefaultMemberPermissions(0n)
     .addChannelOption((opt) =>
@@ -44,7 +44,7 @@ const dupliquerCommand = {
     if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
       await sendLog(
         interaction.client,
-        `⛔ ${interaction.user.tag} a tenté \`/perm\` sans le rôle Administrateur.`
+        `⛔ ${interaction.user.tag} a tenté \`/copie-cat\` sans le rôle Administrateur.`
       );
       await interaction.editReply({ content: 'Réservé au rôle Administrateur.' });
       return;

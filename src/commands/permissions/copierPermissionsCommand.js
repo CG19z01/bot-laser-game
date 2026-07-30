@@ -9,7 +9,7 @@ const ALLOWED_ROLE_NAMES = ['Administrateur'];
 
 const copierPermissionsCommand = {
   data: new SlashCommandBuilder()
-    .setName('copier-permissions')
+    .setName('copie-perm')
     .setDescription("Copie les autorisations d'un rôle vers plusieurs autres rôles")
     .setDefaultMemberPermissions(0n)
     .addRoleOption((opt) =>

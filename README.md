@@ -34,8 +34,8 @@ src/
 ├── score/                 normalisation d'image (imageProcessor) et OCR
 │                          local Tesseract.js (scoreExtractor) pour /score
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
-│                          /sondage, /equipes, /perm, /nouvelle-promo,
-│                          /copier-permissions, /score, /edit-score,
+│                          /sondage, /equipe, /copie-cat, /nouvelle-promo,
+│                          /copie-perm, /score, /edit-score,
 │                          /aide, /deco
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
@@ -52,7 +52,7 @@ src/
 - Permissions du bot sur le serveur : **Gérer les rôles** (auto-role),
   **Gérer les messages** et **Mute les membres (timeout)** (anti-spam, si
   l'action `mute` est utilisée), **Ajouter des réactions** (sondages),
-  **Gérer les salons** (`/perm`).
+  **Gérer les salons** (`/copie-cat`, `/nouvelle-promo`).
 - Un salon admin où le bot peut poster (confirmation de clôture des
   sondages) — son ID sera renseigné dans `ADMIN_CHANNEL_ID`.
 - Un salon dédié où le bot poste le message de rôle par réaction — son ID
@@ -85,7 +85,7 @@ Le bot poste dans `LOG_CHANNEL_ID` : connexion/déconnexion du bot,
 erreurs de commande, attribution/retrait de rôle par réaction,
 modification de `/autorole add`, timeout anti-spam, purge manuelle via
 `/delete`, création et clôture de sondage, génération d'équipes,
-duplication de catégorie, tentative de `/perm` sans le rôle requis,
+duplication de catégorie, tentative de `/copie-cat` sans le rôle requis,
 et correction d'un score via `/edit-score`.
 
 ## Commandes disponibles
@@ -124,14 +124,14 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   `ADMIN_CHANNEL_ID`. Réservée aux rôles **Administrateur**, **STAFF**
   et **Référant**.
 
-- `/equipes <equipes> <nombre> <users>` — répartit aléatoirement les noms
+- `/equipe <equipes> <nombre> <users>` — répartit aléatoirement les noms
   fournis dans `users` (séparés par des virgules) en `equipes` équipes de
   taille équilibrée. `nombre` doit correspondre exactement au nombre de
   noms trouvés dans `users` (sert de vérification anti-erreur de saisie) ;
   entre 6 et 40 joueurs. Réservée aux rôles **Administrateur**, **STAFF**
   et **Référant**.
 
-- `/perm <categorie> <nom> [roles]` — duplique la catégorie choisie
+- `/copie-cat <categorie> <nom> [roles]` — duplique la catégorie choisie
   sous le nom `nom`, ainsi que tous les salons qu'elle contient (pas les
   messages). Les permissions ne sont **pas** copiées depuis la source :
   la nouvelle catégorie et ses salons sont configurés en privé — refusés
@@ -143,7 +143,7 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   salons" sur le serveur.
 
 - `/nouvelle-promo <categorie> <nom> <role_source> <role_cible>` —
-  duplique une catégorie de promo comme `/perm`, mais **copie fidèlement**
+  duplique une catégorie de promo comme `/copie-cat`, mais **copie fidèlement**
   les permissions existantes de chaque salon source (STAFF, Référant, etc.
   inclus, sans modification) et substitue uniquement `role_source` par
   `role_cible` dans ces permissions. `role_cible` (le rôle de la nouvelle
@@ -151,7 +151,7 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   rôle **Administrateur**. Le bot doit avoir la permission "Gérer les
   salons" sur le serveur.
 
-- `/copier-permissions <source> <cibles> [salon] [salons_cibles]` —
+- `/copie-perm <source> <cibles> [salon] [salons_cibles]` —
   copie les autorisations du rôle `source` vers chaque rôle listé dans
   `cibles` (noms ou mentions `@rôle`, séparés par `;`). Sans `salon` :
   copie les autorisations globales du serveur (remplace entièrement

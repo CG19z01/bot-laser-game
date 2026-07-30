@@ -6,10 +6,10 @@
 | `/antispam limit`     | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
 | `/mute`               | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
 | `/delete`             | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
-| `/perm`               | Masquée par défaut (0n)  | Admin                   | Admin                                     |
+| `/copie-cat      `    | Masquée par défaut (0n)  | Admin                   | Admin                                     |
 | `/nouvelle-promo`     | Masquée par défaut (0n)  | Admin                   | Admin                                     |
-| `/copier-permissions` | Masquée par défaut (0n)  | Admin                   | Admin                                     |
-| `/equipes`            | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
+| `/copie-perm`         | Masquée par défaut (0n)  | Admin                   | Admin                                     |
+| `/equipe`             | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
 | `/sondage`            | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
 | `/edit-score`         | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
 | `/score`              | (aucune)                 | (aucune)                | (aucune)                                  |

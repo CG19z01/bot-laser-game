@@ -22,7 +22,7 @@ function buildTeams(names, teamCount) {
 
 const equipesCommand = {
   data: new SlashCommandBuilder()
-    .setName('equipes')
+    .setName('equipe')
     .setDescription('Forme des équipes aléatoires à partir d\'une liste de joueurs')
     .setDefaultMemberPermissions(0n)
     .addIntegerOption((opt) =>
