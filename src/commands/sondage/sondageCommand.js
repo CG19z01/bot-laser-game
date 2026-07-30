@@ -24,7 +24,7 @@ const sondageCommand = {
         .setName('create')
         .setDescription('Crée un sondage pour une session avec plusieurs dates au choix')
         .addStringOption((opt) =>
-          opt.setName('lieu').setDescription('Nom du lieu').setRequired(true)
+          opt.setName('evenement').setDescription('Nom du lieu').setRequired(true)
         )
         .addStringOption((opt) =>
           opt.setName('ville').setDescription('Ville où se déroule la session').setRequired(true)

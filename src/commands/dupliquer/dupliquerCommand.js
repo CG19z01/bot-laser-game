@@ -20,7 +20,7 @@ function buildOverwrites(everyoneId, roles) {
 
 const dupliquerCommand = {
   data: new SlashCommandBuilder()
-    .setName('dupliquer')
+    .setName('perm')
     .setDescription('Duplique une catégorie et tous ses salons')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
     .addChannelOption((opt) =>

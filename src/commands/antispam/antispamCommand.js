@@ -8,7 +8,7 @@ const antispamCommand = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .addSubcommand((sub) =>
       sub
-        .setName('set-limit')
+        .setName('limit')
         .setDescription('Définit le seuil de déclenchement anti-spam')
         .addIntegerOption((opt) =>
           opt

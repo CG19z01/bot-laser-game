@@ -31,8 +31,8 @@ src/
 ├── score/                 normalisation d'image (imageProcessor) et OCR
 │                          local Tesseract.js (scoreExtractor) pour /score
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
-│                          /sondage, /equipes, /dupliquer,
-│                          /copier-permissions, /score, /score-modifier
+│                          /sondage, /equipes, /perm,
+│                          /copier-permissions, /score, /edit-score
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
@@ -48,7 +48,7 @@ src/
 - Permissions du bot sur le serveur : **Gérer les rôles** (auto-role),
   **Gérer les messages** et **Mute les membres (timeout)** (anti-spam, si
   l'action `mute` est utilisée), **Ajouter des réactions** (sondages),
-  **Gérer les salons** (`/dupliquer`).
+  **Gérer les salons** (`/perm`).
 - Un salon admin où le bot peut poster (confirmation de clôture des
   sondages) — son ID sera renseigné dans `ADMIN_CHANNEL_ID`.
 - Un salon dédié où le bot poste le message de rôle par réaction — son ID
@@ -81,8 +81,8 @@ Le bot poste dans `LOG_CHANNEL_ID` : connexion/déconnexion du bot,
 erreurs de commande, attribution/retrait de rôle par réaction,
 modification de `/autorole add`, timeout anti-spam, purge manuelle via
 `/delete`, création et clôture de sondage, génération d'équipes,
-duplication de catégorie, tentative de `/dupliquer` sans le rôle requis,
-et correction d'un score via `/score-modifier`.
+duplication de catégorie, tentative de `/perm` sans le rôle requis,
+et correction d'un score via `/edit-score`.
 
 ## Commandes disponibles
 
@@ -94,7 +94,7 @@ et correction d'un score via `/score-modifier`.
   rôle (ex: une fois par promo) sans jamais nécessiter de changement de
   code quand de nouveaux rôles s'ajoutent. Nécessite la permission "Gérer
   les rôles" ; refuse un rôle disposant de la permission Administrateur.
-- `/antispam set-limit <messages> <seconde>` — définit le seuil de
+- `/antispam limit <messages> <seconde>` — définit le seuil de
   déclenchement (nombre de messages sur une fenêtre en secondes, par
   serveur+salon+utilisateur). Par défaut : 5 messages / 5s.
 - `/mute <duration>` — en cas de dépassement du seuil anti-spam, l'action
@@ -109,7 +109,7 @@ et correction d'un score via `/score-modifier`.
 
 Ces trois commandes nécessitent la permission "Modérer les membres".
 
-- `/sondage create <lieu> <ville> <dates> <nombre_personnes> <seuil>` —
+- `/sondage create <evenement> <ville> <dates> <nombre_personnes> <seuil>` —
   crée un sondage pour une session avec 1 à 10 dates au format
   `JJ/MM/AAAA` séparées par des points-virgules (`;`). Chaque date reçoit
   une réaction emoji numérotée. Dès que le total des réactions (toutes
@@ -126,7 +126,7 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   entre 6 et 40 joueurs. Réservée aux rôles **Administrateur**, **STAFF**
   et **Référant**.
 
-- `/dupliquer <categorie> <nom> [roles]` — duplique la catégorie choisie
+- `/perm <categorie> <nom> [roles]` — duplique la catégorie choisie
   sous le nom `nom`, ainsi que tous les salons qu'elle contient (pas les
   messages). Les permissions ne sont **pas** copiées depuis la source :
   la nouvelle catégorie et ses salons sont configurés en privé — refusés
@@ -179,7 +179,7 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   supporté, échec de conversion) renvoie un message d'erreur clair plutôt
   qu'un crash. Ouverte à tous les membres.
 
-- `/score-modifier <id> <champ> <valeur>` — corrige une valeur d'un score
+- `/edit-score <id> <champ> <valeur>` — corrige une valeur d'un score
   après comparaison visuelle entre la photo et le résultat affiché par
   `/score` (l'`id` figure dans le pied de page de l'embed). `champ` est un
   des 8 champs proposés en liste déroulante. Réservée aux rôles
