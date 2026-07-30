@@ -1,8 +1,9 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { requireRole } from '../../permissions/requireRole.js';
+import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF', 'Référant'];
+const ALLOWED_ROLE_NAMES = COMMAND_ROLES.equipe;
 
 function shuffle(array) {
   const result = [...array];
@@ -43,13 +44,7 @@ const equipesCommand = {
         .setRequired(true)
     ),
   async execute(interaction) {
-    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
-      await interaction.reply({
-        content: 'Réservé aux rôles Administrateur, STAFF et Référant.',
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
+    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
 
     const teamCount = interaction.options.getInteger('equipes', true);
     const expectedCount = interaction.options.getInteger('nombre', true);

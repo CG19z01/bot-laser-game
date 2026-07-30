@@ -1,11 +1,12 @@
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { requireRole } from '../../permissions/requireRole.js';
 import { resolveRolesByNames } from '../../permissions/resolveRolesByNames.js';
 import { resolveChannelsByNames } from '../../permissions/resolveChannelsByNames.js';
 import { buildOverwriteOptions } from '../../permissions/buildOverwriteOptions.js';
+import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur'];
+const ALLOWED_ROLE_NAMES = COMMAND_ROLES['copie-perm'];
 
 const copierPermissionsCommand = {
   data: new SlashCommandBuilder()
@@ -34,10 +35,7 @@ const copierPermissionsCommand = {
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
-      await interaction.editReply({ content: 'Réservé au rôle Administrateur.' });
-      return;
-    }
+    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
 
     const source = interaction.options.getRole('source', true);
     if (source.permissions.has(PermissionFlagsBits.Administrator)) {

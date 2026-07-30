@@ -1,8 +1,9 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setAntispamLimit } from '../../db/antispam/setAntispamLimit.js';
-import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { requireRole } from '../../permissions/requireRole.js';
+import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
+const ALLOWED_ROLE_NAMES = COMMAND_ROLES.antispam;
 
 const antispamCommand = {
   data: new SlashCommandBuilder()
@@ -31,13 +32,7 @@ const antispamCommand = {
         )
     ),
   async execute(interaction) {
-    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
-      await interaction.reply({
-        content: 'Réservé aux rôles Administrateur et STAFF.',
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
+    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
 
     const messages = interaction.options.getInteger('messages', true);
     const seconde = interaction.options.getInteger('seconde', true);

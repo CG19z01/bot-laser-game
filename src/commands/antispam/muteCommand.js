@@ -1,8 +1,9 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setAntispamAction } from '../../db/antispam/setAntispamAction.js';
-import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { requireRole } from '../../permissions/requireRole.js';
+import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
+const ALLOWED_ROLE_NAMES = COMMAND_ROLES.mute;
 
 const muteCommand = {
   data: new SlashCommandBuilder()
@@ -18,13 +19,7 @@ const muteCommand = {
         .setMaxValue(2419200)
     ),
   async execute(interaction) {
-    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
-      await interaction.reply({
-        content: 'Réservé aux rôles Administrateur et STAFF.',
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
+    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
 
     const duration = interaction.options.getInteger('duration', true);
     setAntispamAction(interaction.guildId, 'mute', duration);

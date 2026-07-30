@@ -1,11 +1,12 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { createPoll } from '../../db/polls/createPoll.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { requireRole } from '../../permissions/requireRole.js';
 import { DATE_EMOJIS } from '../../polls/dateEmojis.js';
+import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 
 const DATE_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
-const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF', 'Référant'];
+const ALLOWED_ROLE_NAMES = COMMAND_ROLES.sondage;
 
 function parseDates(raw) {
   const cleaned = raw.trim().replace(/;+\s*$/, '');
@@ -52,15 +53,9 @@ const sondageCommand = {
         )
     ),
   async execute(interaction) {
-    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
-      await interaction.reply({
-        content: 'Réservé aux rôles Administrateur, STAFF et Référant.',
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
+    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
 
-    const lieu = interaction.options.getString('lieu', true);
+    const lieu = interaction.options.getString('evenement', true);
     const ville = interaction.options.getString('ville', true);
     const rawDates = interaction.options.getString('dates', true);
     const nombrePersonnes = interaction.options.getInteger('nombre_personnes', true);

@@ -2,8 +2,10 @@ import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, MessageFlags } f
 import { sendLog } from '../../logs/sendLog.js';
 import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
 import { resolveRolesByNames } from '../../permissions/resolveRolesByNames.js';
+import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { cloneCategoryWithChildren } from '../../permissions/cloneCategoryWithChildren.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur'];
+const ALLOWED_ROLE_NAMES = COMMAND_ROLES['copie-cat'];
 const ACCESS_PERMISSIONS = [
   PermissionFlagsBits.ViewChannel,
   PermissionFlagsBits.SendMessages,
@@ -71,14 +73,7 @@ const dupliquerCommand = {
     const roles = resolved.map((r) => r.role);
 
     const overwrites = buildOverwrites(interaction.guild.roles.everyone.id, roles);
-
-    const newCategory = await source.clone({ name: newName, permissionOverwrites: overwrites });
-
-    const children = [...source.children.cache.values()].sort((a, b) => a.position - b.position);
-    for (const child of children) {
-      const clone = await child.clone({ name: child.name, permissionOverwrites: overwrites });
-      await clone.setParent(newCategory.id, { lockPermissions: false });
-    }
+    const children = await cloneCategoryWithChildren(source, newName, () => overwrites);
 
     await sendLog(
       interaction.client,

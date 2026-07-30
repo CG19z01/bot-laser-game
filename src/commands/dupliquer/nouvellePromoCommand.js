@@ -6,9 +6,11 @@
 
 import { SlashCommandBuilder, ChannelType, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { requireRole } from '../../permissions/requireRole.js';
+import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { cloneCategoryWithChildren } from '../../permissions/cloneCategoryWithChildren.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur'];
+const ALLOWED_ROLE_NAMES = COMMAND_ROLES['nouvelle-promo'];
 
 function transposeOverwrites(channel, roleSourceId, roleCibleId) {
   return channel.permissionOverwrites.cache.map((overwrite) => ({
@@ -45,29 +47,16 @@ const nouvellePromoCommand = {
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
-      await interaction.editReply({ content: 'Réservé au rôle Administrateur.' });
-      return;
-    }
+    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
 
     const source = interaction.options.getChannel('categorie', true);
     const newName = interaction.options.getString('nom', true);
     const roleSource = interaction.options.getRole('role_source', true);
     const roleCible = interaction.options.getRole('role_cible', true);
 
-    const newCategory = await source.clone({
-      name: newName,
-      permissionOverwrites: transposeOverwrites(source, roleSource.id, roleCible.id),
-    });
-
-    const children = [...source.children.cache.values()].sort((a, b) => a.position - b.position);
-    for (const child of children) {
-      const clone = await child.clone({
-        name: child.name,
-        permissionOverwrites: transposeOverwrites(child, roleSource.id, roleCible.id),
-      });
-      await clone.setParent(newCategory.id, { lockPermissions: false });
-    }
+    const children = await cloneCategoryWithChildren(source, newName, (channel) =>
+      transposeOverwrites(channel, roleSource.id, roleCible.id)
+    );
 
     await sendLog(
       interaction.client,
