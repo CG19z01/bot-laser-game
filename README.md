@@ -221,3 +221,7 @@ commande dans [PERMISSIONS.md](./PERMISSIONS.md).
 Voir [CLAUDE.md](./CLAUDE.md) pour les conventions de code (taille des
 fichiers, une fonction par fichier, mise à jour du README après chaque
 commit).
+
+## Licence
+
+[MIT](./LICENSE)
