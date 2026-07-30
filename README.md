@@ -10,8 +10,10 @@ obtient le rôle associé en réagissant, le perd en retirant sa réaction —
 évite l'attribution automatique à des comptes bots qui rejoignent),
 **anti-spam** (limite de messages par utilisateur avec suppression et/ou
 timeout configurables), **sondages** (choix d'une date parmi plusieurs
-propositions par réactions) et **équipes aléatoires** (répartition au
-hasard d'une liste de joueurs).
+propositions par réactions), **équipes aléatoires** (répartition au
+hasard d'une liste de joueurs) et **extraction de scores** (lecture d'une
+photo de feuille de résultats par OCR local, avec correction possible par
+un Référant).
 
 ## Structure du projet
 
@@ -20,15 +22,17 @@ src/
 ├── index.js               entrypoint
 ├── deployCommands.js      enregistrement des slash commands
 ├── config/env.js          lecture des variables d'environnement
-├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/)
+├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/, scores/)
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
 ├── autorole/              normalisation des émojis pour le rôle par réaction
 ├── polls/                 émojis utilisés pour le vote par date
 ├── logs/                  envoi des messages de log vers LOG_CHANNEL_ID
 ├── permissions/           vérification de rôle par nom (STAFF, Référant...)
+├── score/                 normalisation d'image (imageProcessor) et OCR
+│                          local Tesseract.js (scoreExtractor) pour /score
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
 │                          /sondage, /equipes, /dupliquer,
-│                          /copier-permissions
+│                          /copier-permissions, /score, /score-modifier
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
@@ -77,8 +81,8 @@ Le bot poste dans `LOG_CHANNEL_ID` : connexion/déconnexion du bot,
 erreurs de commande, attribution/retrait de rôle par réaction,
 modification de `/autorole add`, timeout anti-spam, purge manuelle via
 `/delete`, création et clôture de sondage, génération d'équipes,
-duplication de catégorie, et tentative de `/dupliquer` sans le rôle
-requis.
+duplication de catégorie, tentative de `/dupliquer` sans le rôle requis,
+et correction d'un score via `/score-modifier`.
 
 ## Commandes disponibles
 
@@ -156,6 +160,31 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   ce salon avant de lancer la commande si elles diffèrent volontairement
   de `source`.
   Réservée au rôle **Administrateur**.
+
+- `/score <image>` — extrait automatiquement les scores d'une photo de
+  feuille de résultats laser game envoyée en pièce jointe (`.jpg`, `.jpeg`,
+  `.png`, `.webp`, `.heic`, `.heif`). L'image est normalisée en JPEG
+  (`src/score/imageProcessor.js` : conversion HEIC/HEIF, redimensionnement
+  2000px max, niveaux de gris + contraste) puis analysée par **OCR local**
+  (`src/score/scoreExtractor.js`, Tesseract.js — gratuit, aucun appel
+  externe). ⚠️ **Heuristique fragile** : la mise en page de la feuille
+  n'étant pas connue à l'avance, les nombres reconnus sont assignés aux 8
+  zones (pistolet/plastron/épaules/dos × tirs reçus/envoyés) simplement dans
+  l'ordre de lecture (haut en bas, gauche à droite) — tout autre nombre
+  présent sur la photo (date, numéro de page...) peut décaler l'assignation
+  sans que ce soit détecté. Le résultat (photo + valeurs + un ID) est
+  enregistré en base et affiché en embed dans le salon où la commande a été
+  utilisée ; un pied de page signale une extraction incertaine si le compte
+  de valeurs trouvées ne correspond pas à 8. Chaque étape (format non
+  supporté, échec de conversion) renvoie un message d'erreur clair plutôt
+  qu'un crash. Ouverte à tous les membres.
+
+- `/score-modifier <id> <champ> <valeur>` — corrige une valeur d'un score
+  après comparaison visuelle entre la photo et le résultat affiché par
+  `/score` (l'`id` figure dans le pied de page de l'embed). `champ` est un
+  des 8 champs proposés en liste déroulante. Réservée aux rôles
+  **Administrateur**, **STAFF** et **Référant** ; chaque correction est
+  postée dans `LOG_CHANNEL_ID`.
 
 ## Conventions
 

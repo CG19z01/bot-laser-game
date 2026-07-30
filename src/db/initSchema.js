@@ -28,6 +28,22 @@ export function initSchema() {
       threshold  INTEGER NOT NULL,
       closed     INTEGER NOT NULL DEFAULT 0
     );
+
+    CREATE TABLE IF NOT EXISTS score_records (
+      id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+      guild_id              TEXT NOT NULL,
+      channel_id            TEXT NOT NULL,
+      submitted_by          TEXT NOT NULL,
+      tirs_recus_pistolet   INTEGER NOT NULL,
+      tirs_recus_plastron   INTEGER NOT NULL,
+      tirs_recus_epaules    INTEGER NOT NULL,
+      tirs_recus_dos        INTEGER NOT NULL,
+      tirs_envoyes_pistolet INTEGER NOT NULL,
+      tirs_envoyes_plastron INTEGER NOT NULL,
+      tirs_envoyes_epaules  INTEGER NOT NULL,
+      tirs_envoyes_dos      INTEGER NOT NULL,
+      created_at            TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   const columns = getDb().prepare('PRAGMA table_info(autorole_roles)').all();
