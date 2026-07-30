@@ -1,8 +1,10 @@
-import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setAntispamAction } from '../../db/antispam/setAntispamAction.js';
 import { sendLog } from '../../logs/sendLog.js';
+import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
 
 const DEFAULT_USER_DELETE_COUNT = 10;
+const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
 
 async function purgeMessages(channel, count, userId) {
   if (!userId) {
@@ -31,7 +33,7 @@ const deleteCommand = {
     .setDescription(
       "Supprime des messages, ou configure l'action anti-spam si aucun paramètre"
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDefaultMemberPermissions(0n)
     .addUserOption((opt) =>
       opt.setName('user').setDescription('Utilisateur dont supprimer les messages')
     )
@@ -43,6 +45,14 @@ const deleteCommand = {
         .setMaxValue(100)
     ),
   async execute(interaction) {
+    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
+      await interaction.reply({
+        content: 'Réservé aux rôles Administrateur et STAFF.',
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     const user = interaction.options.getUser('user');
     const nombre = interaction.options.getInteger('nombre');
 

@@ -1,11 +1,14 @@
-import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setAntispamLimit } from '../../db/antispam/setAntispamLimit.js';
+import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+
+const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
 
 const antispamCommand = {
   data: new SlashCommandBuilder()
     .setName('antispam')
     .setDescription("Configure la protection anti-spam du serveur")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDefaultMemberPermissions(0n)
     .addSubcommand((sub) =>
       sub
         .setName('limit')
@@ -28,6 +31,14 @@ const antispamCommand = {
         )
     ),
   async execute(interaction) {
+    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
+      await interaction.reply({
+        content: 'Réservé aux rôles Administrateur et STAFF.',
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     const messages = interaction.options.getInteger('messages', true);
     const seconde = interaction.options.getInteger('seconde', true);
     setAntispamLimit(interaction.guildId, messages, seconde);

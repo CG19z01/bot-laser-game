@@ -3,12 +3,15 @@ import { getAutoroleRoles } from '../../db/autorole/getAutoroleRoles.js';
 import { upsertAutoroleRole } from '../../db/autorole/upsertAutoroleRole.js';
 import { normalizeEmoji } from '../../autorole/normalizeEmoji.js';
 import { sendLog } from '../../logs/sendLog.js';
+import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+
+const ALLOWED_ROLE_NAMES = ['Administrateur'];
 
 const autoroleCommand = {
   data: new SlashCommandBuilder()
     .setName('autorole')
     .setDescription('Configure les rôles auto-assignables par réaction')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
+    .setDefaultMemberPermissions(0n)
     .addSubcommand((sub) =>
       sub
         .setName('add')
@@ -22,6 +25,11 @@ const autoroleCommand = {
     ),
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
+      await interaction.editReply({ content: 'Réservé au rôle Administrateur.' });
+      return;
+    }
 
     const role = interaction.options.getRole('role', true);
     const emojiDisplay = interaction.options.getString('emoji', true);

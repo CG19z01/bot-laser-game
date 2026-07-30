@@ -64,11 +64,18 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
   encore.
 - Ne jamais committer de secrets (token Discord, clés API) — utiliser un
   `.env` listé dans `.gitignore`.
+- Toute nouvelle commande (ou changement de restriction sur une commande
+  existante) doit être ajoutée/mise à jour dans `PERMISSIONS.md` **et**
+  dans `src/permissions/commandRoles.js` (source utilisée par `/aide`),
+  avec la même logique que le README : ne jamais laisser ces fichiers
+  décrire un état de permissions qui ne correspond plus au code.
 
 ## Avant de terminer une tâche
 
 - Vérifier qu'aucun fichier ne dépasse 150 lignes.
 - Vérifier qu'aucune fonction n'est dupliquée.
 - Mettre à jour le README si la structure ou les commandes ont changé.
+- Mettre à jour `PERMISSIONS.md` et `src/permissions/commandRoles.js` si
+  une commande a été ajoutée ou si ses restrictions ont changé.
 - Vérifier les points de la section Sécurité (stockage des éléments à
   protéger, permissions des commandes sensibles, mentions non protégées).

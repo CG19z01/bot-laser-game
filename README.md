@@ -11,9 +11,10 @@ obtient le rôle associé en réagissant, le perd en retirant sa réaction —
 **anti-spam** (limite de messages par utilisateur avec suppression et/ou
 timeout configurables), **sondages** (choix d'une date parmi plusieurs
 propositions par réactions), **équipes aléatoires** (répartition au
-hasard d'une liste de joueurs) et **extraction de scores** (lecture d'une
+hasard d'une liste de joueurs), **extraction de scores** (lecture d'une
 photo de feuille de résultats par OCR local, avec correction possible par
-un Référant).
+un Référant), **aide** (liste des commandes accessibles selon le rôle) et
+**déconnexion manuelle** du bot par un Administrateur.
 
 ## Structure du projet
 
@@ -28,11 +29,14 @@ src/
 ├── polls/                 émojis utilisés pour le vote par date
 ├── logs/                  envoi des messages de log vers LOG_CHANNEL_ID
 ├── permissions/           vérification de rôle par nom (STAFF, Référant...)
+│                          et rôles autorisés par commande (commandRoles.js,
+│                          utilisé par /aide)
 ├── score/                 normalisation d'image (imageProcessor) et OCR
 │                          local Tesseract.js (scoreExtractor) pour /score
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
-│                          /sondage, /equipes, /perm,
-│                          /copier-permissions, /score, /edit-score
+│                          /sondage, /equipes, /perm, /nouvelle-promo,
+│                          /copier-permissions, /score, /edit-score,
+│                          /aide, /deco
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
@@ -92,8 +96,9 @@ et correction d'un score via `/edit-score`.
   retirer la réaction le retire. Rappeler la commande avec un émoji déjà
   utilisé remplace le rôle associé. Pensé pour être appelé une fois par
   rôle (ex: une fois par promo) sans jamais nécessiter de changement de
-  code quand de nouveaux rôles s'ajoutent. Nécessite la permission "Gérer
-  les rôles" ; refuse un rôle disposant de la permission Administrateur.
+  code quand de nouveaux rôles s'ajoutent. Réservée au rôle
+  **Administrateur** ; refuse de proposer un rôle disposant lui-même de la
+  permission Administrateur.
 - `/antispam limit <messages> <seconde>` — définit le seuil de
   déclenchement (nombre de messages sur une fenêtre en secondes, par
   serveur+salon+utilisateur). Par défaut : 5 messages / 5s.
@@ -107,7 +112,7 @@ et correction d'un score via `/edit-score`.
     courant (jusqu'à `nombre`, 10 par défaut si `user` est fourni seul ;
     tous auteurs confondus si `user` est omis).
 
-Ces trois commandes nécessitent la permission "Modérer les membres".
+Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
 
 - `/sondage create <evenement> <ville> <dates> <nombre_personnes> <seuil>` —
   crée un sondage pour une session avec 1 à 10 dates au format
@@ -131,13 +136,20 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   messages). Les permissions ne sont **pas** copiées depuis la source :
   la nouvelle catégorie et ses salons sont configurés en privé — refusés
   à `@everyone`, autorisés (voir, écrire, poster images/émojis externes)
-  uniquement pour **Administrateur**, **STAFF**, et les rôles listés dans
+  uniquement pour **Administrateur**, et les rôles listés dans
   `roles` (noms exacts séparés par `;`, ex: `P1 2026`). La commande
-  échoue si l'un des rôles nommés n'existe pas. Réservée aux membres
-  ayant le rôle **Administrateur** ou **STAFF** (vérifié par nom de
-  rôle, en plus de la permission Discord "Gérer les salons" qui
-  contrôle la visibilité de la commande). Le bot doit lui-même avoir la
-  permission "Gérer les salons" sur le serveur.
+  échoue si l'un des rôles nommés n'existe pas. Réservée au rôle
+  **Administrateur**. Le bot doit lui-même avoir la permission "Gérer les
+  salons" sur le serveur.
+
+- `/nouvelle-promo <categorie> <nom> <role_source> <role_cible>` —
+  duplique une catégorie de promo comme `/perm`, mais **copie fidèlement**
+  les permissions existantes de chaque salon source (STAFF, Référant, etc.
+  inclus, sans modification) et substitue uniquement `role_source` par
+  `role_cible` dans ces permissions. `role_cible` (le rôle de la nouvelle
+  promo) doit déjà exister — la commande ne crée pas de rôle. Réservée au
+  rôle **Administrateur**. Le bot doit avoir la permission "Gérer les
+  salons" sur le serveur.
 
 - `/copier-permissions <source> <cibles> [salon] [salons_cibles]` —
   copie les autorisations du rôle `source` vers chaque rôle listé dans
@@ -185,6 +197,24 @@ Ces trois commandes nécessitent la permission "Modérer les membres".
   des 8 champs proposés en liste déroulante. Réservée aux rôles
   **Administrateur**, **STAFF** et **Référant** ; chaque correction est
   postée dans `LOG_CHANNEL_ID`.
+
+- `/aide` — liste, en réponse éphémère, les commandes que l'utilisateur qui
+  l'invoque peut effectivement utiliser (filtrage par rôle via
+  `src/permissions/commandRoles.js`). Ouverte à tous.
+
+- `/deco` — arrête le process du bot (`process.exit`), pas seulement la
+  connexion Discord. Réservée au rôle **Administrateur** ; l'arrêt est
+  posté dans `LOG_CHANNEL_ID`. ⚠️ Aucun redémarrage automatique : il faut
+  relancer `npm start` manuellement ensuite.
+
+## Permissions
+
+Toutes les commandes (sauf `/score`) sont masquées par défaut dans le
+client Discord (`setDefaultMemberPermissions(0n)`) — le contrôle réel se
+fait par nom de rôle dans le code. Pour que STAFF/Référant les voient dans
+Discord, il faut aussi les ajouter manuellement par commande dans
+**Paramètres du serveur → Intégrations → Bot Laser Game**. Détail par
+commande dans [PERMISSIONS.md](./PERMISSIONS.md).
 
 ## Conventions
 

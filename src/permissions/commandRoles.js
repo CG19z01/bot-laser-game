@@ -1,0 +1,20 @@
+// Rôles autorisés par commande (nom sans le "/"), utilisé par /aide pour
+// n'afficher à un membre que les commandes qu'il peut réellement utiliser.
+// `null` = commande ouverte à tout le monde. Doit rester synchronisé avec
+// la vérification hasRoleNamed() réelle de chaque commande (voir aussi
+// PERMISSIONS.md — CLAUDE.md impose de mettre à jour les deux ensemble).
+export const COMMAND_ROLES = {
+  autorole: ['Administrateur'],
+  antispam: ['Administrateur', 'STAFF'],
+  mute: ['Administrateur', 'STAFF'],
+  delete: ['Administrateur', 'STAFF'],
+  perm: ['Administrateur'],
+  'nouvelle-promo': ['Administrateur'],
+  'copier-permissions': ['Administrateur'],
+  equipes: ['Administrateur', 'STAFF', 'Référant'],
+  sondage: ['Administrateur', 'STAFF', 'Référant'],
+  'edit-score': ['Administrateur', 'STAFF', 'Référant'],
+  score: null,
+  aide: null,
+  deco: ['Administrateur'],
+};

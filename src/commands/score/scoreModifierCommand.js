@@ -26,6 +26,7 @@ const scoreModifierCommand = {
   data: new SlashCommandBuilder()
     .setName('edit-score')
     .setDescription('Corrige une valeur extraite par /score après vérification')
+    .setDefaultMemberPermissions(0n)
     .addIntegerOption((opt) =>
       opt.setName('id').setDescription("ID du score (pied de l'embed /score)").setRequired(true)
     )

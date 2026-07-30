@@ -19,6 +19,7 @@ const sondageCommand = {
   data: new SlashCommandBuilder()
     .setName('sondage')
     .setDescription('Crée un sondage pour choisir une date')
+    .setDefaultMemberPermissions(0n)
     .addSubcommand((sub) =>
       sub
         .setName('create')

@@ -3,7 +3,7 @@ import { sendLog } from '../../logs/sendLog.js';
 import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
 import { resolveRolesByNames } from '../../permissions/resolveRolesByNames.js';
 
-const ALLOWED_ROLE_NAMES = ['Administrateur', 'STAFF'];
+const ALLOWED_ROLE_NAMES = ['Administrateur'];
 const ACCESS_PERMISSIONS = [
   PermissionFlagsBits.ViewChannel,
   PermissionFlagsBits.SendMessages,
@@ -22,7 +22,7 @@ const dupliquerCommand = {
   data: new SlashCommandBuilder()
     .setName('perm')
     .setDescription('Duplique une catégorie et tous ses salons')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
+    .setDefaultMemberPermissions(0n)
     .addChannelOption((opt) =>
       opt
         .setName('categorie')
@@ -36,7 +36,7 @@ const dupliquerCommand = {
     .addStringOption((opt) =>
       opt
         .setName('roles')
-        .setDescription('Rôles ayant accès, séparés par ";" (Administrateur et STAFF déjà inclus)')
+        .setDescription('Rôles ayant accès, séparés par ";" (Administrateur déjà inclus)')
     ),
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -44,9 +44,9 @@ const dupliquerCommand = {
     if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
       await sendLog(
         interaction.client,
-        `⛔ ${interaction.user.tag} a tenté \`/dupliquer\` sans le rôle Administrateur/STAFF.`
+        `⛔ ${interaction.user.tag} a tenté \`/perm\` sans le rôle Administrateur.`
       );
-      await interaction.editReply({ content: 'Réservé aux rôles Administrateur et STAFF.' });
+      await interaction.editReply({ content: 'Réservé au rôle Administrateur.' });
       return;
     }
 

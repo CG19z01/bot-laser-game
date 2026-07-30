@@ -24,6 +24,7 @@ const equipesCommand = {
   data: new SlashCommandBuilder()
     .setName('equipes')
     .setDescription('Forme des équipes aléatoires à partir d\'une liste de joueurs')
+    .setDefaultMemberPermissions(0n)
     .addIntegerOption((opt) =>
       opt.setName('equipes').setDescription("Nombre d'équipes").setRequired(true).setMinValue(2)
     )

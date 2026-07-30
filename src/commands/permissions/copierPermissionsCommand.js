@@ -11,6 +11,7 @@ const copierPermissionsCommand = {
   data: new SlashCommandBuilder()
     .setName('copier-permissions')
     .setDescription("Copie les autorisations d'un rôle vers plusieurs autres rôles")
+    .setDefaultMemberPermissions(0n)
     .addRoleOption((opt) =>
       opt.setName('source').setDescription('Rôle dont copier les autorisations').setRequired(true)
     )
