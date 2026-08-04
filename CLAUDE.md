@@ -55,6 +55,28 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
   entrées utilisateur affichées publiquement, faire une relecture
   sécurité ciblée avant de committer.
 
+## Tests
+
+- `npm test` (test runner intégré de Node, `node --test`) — pas de
+  framework de test en dépendance.
+- Un fichier de test par fonction testée, même arborescence que `src/`
+  sous `test/` (ex: `src/permissions/hasRoleNamed.js` →
+  `test/permissions/hasRoleNamed.test.js`).
+- Mocks discord.js réutilisés entre plusieurs fichiers de test :
+  `test-support/fakeDiscord.js` (pas de duplication de mocks). Un helper
+  de mock utilisé dans un seul fichier de test peut rester local à ce
+  fichier.
+- Un helper strictement privé (non exporté) peut être exporté en plus de
+  l'export par défaut de sa commande **uniquement** pour être testable —
+  documenter ce choix en commentaire au-dessus de l'export.
+- Priorité de test : logique pure/isolée et points sensibles côté
+  sécurité (contrôle d'accès par rôle, requêtes SQL avec interpolation,
+  validation d'entrées). Les commandes complètes (`execute()`) ne sont
+  pas testées unitairement — trop dépendantes de l'API discord.js.
+- **Jamais** de test touchant `data/bot.db` : rediriger vers un fichier
+  temporaire via `BOT_DB_PATH` (voir `src/db/database.js`), toujours
+  nettoyé après le test.
+
 ## Git & documentation
 
 - **Après chaque commit**, mettre à jour `README.md` pour qu'il reflète l'état
@@ -72,6 +94,7 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
 
 ## Avant de terminer une tâche
 
+- Lancer `npm test` et vérifier que tout passe.
 - Vérifier qu'aucun fichier ne dépasse 150 lignes.
 - Vérifier qu'aucune fonction n'est dupliquée.
 - Mettre à jour le README si la structure ou les commandes ont changé.

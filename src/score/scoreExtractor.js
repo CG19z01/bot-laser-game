@@ -20,7 +20,9 @@ const FIELD_ORDER = [
   ...SCORE_ZONES.map((zone) => ['tirs_envoyes', zone]),
 ];
 
-function extractNumbersInReadingOrder(words) {
+// Exportée en plus d'extractScores() uniquement pour être testée
+// unitairement — pas d'autre appelant en dehors de ce fichier.
+export function extractNumbersInReadingOrder(words) {
   return words
     .filter((word) => /^\d+$/.test(word.text.trim()))
     .sort((a, b) => a.bbox.y0 - b.bbox.y0 || a.bbox.x0 - b.bbox.x0)

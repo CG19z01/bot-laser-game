@@ -3,7 +3,9 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DB_PATH = join(dirname(fileURLToPath(import.meta.url)), '../../data/bot.db');
+// BOT_DB_PATH permet de rediriger la base vers un fichier temporaire dans
+// les tests, sans jamais toucher à data/bot.db (données réelles du bot).
+const DB_PATH = process.env.BOT_DB_PATH ?? join(dirname(fileURLToPath(import.meta.url)), '../../data/bot.db');
 let dbInstance;
 
 export function getDb() {

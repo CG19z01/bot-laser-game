@@ -13,7 +13,9 @@ const ACCESS_PERMISSIONS = [
   PermissionFlagsBits.UseExternalEmojis,
 ];
 
-function buildOverwrites(everyoneId, roles) {
+// Exportée (en plus de l'export par défaut) uniquement pour être testée
+// unitairement — pas d'autre appelant en dehors de ce fichier.
+export function buildOverwrites(everyoneId, roles) {
   return [
     { id: everyoneId, deny: [PermissionFlagsBits.ViewChannel] },
     ...roles.map((role) => ({ id: role.id, allow: ACCESS_PERMISSIONS })),

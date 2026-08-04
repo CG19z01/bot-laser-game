@@ -5,7 +5,10 @@ import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 
 const ALLOWED_ROLE_NAMES = COMMAND_ROLES.equipe;
 
-function shuffle(array) {
+// Exportées (en plus de l'export par défaut de la commande) uniquement
+// pour être testées unitairement — pas d'autre appelant en dehors de ce
+// fichier.
+export function shuffle(array) {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -14,7 +17,7 @@ function shuffle(array) {
   return result;
 }
 
-function buildTeams(names, teamCount) {
+export function buildTeams(names, teamCount) {
   const shuffled = shuffle(names);
   const teams = Array.from({ length: teamCount }, () => []);
   shuffled.forEach((name, i) => teams[i % teamCount].push(name));

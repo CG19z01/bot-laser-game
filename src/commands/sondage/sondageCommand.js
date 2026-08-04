@@ -8,7 +8,9 @@ import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 const DATE_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
 const ALLOWED_ROLE_NAMES = COMMAND_ROLES.sondage;
 
-function parseDates(raw) {
+// Exportée (en plus de l'export par défaut) uniquement pour être testée
+// unitairement — pas d'autre appelant en dehors de ce fichier.
+export function parseDates(raw) {
   const cleaned = raw.trim().replace(/;+\s*$/, '');
   const dates = cleaned.split(';').map((d) => d.trim());
   if (dates.length < 1 || dates.length > DATE_EMOJIS.length) return null;

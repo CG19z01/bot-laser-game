@@ -41,6 +41,9 @@ src/
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
 └── utils/                 chargement dynamique des commands/events
+
+test/                      tests unitaires (node --test), même arborescence que src/
+test-support/              mocks discord.js partagés entre fichiers de test
 ```
 
 ## Prérequis
@@ -67,6 +70,22 @@ src/
    `GUILD_ID`, `ADMIN_CHANNEL_ID`, `ROLE_CHANNEL_ID`, `LOG_CHANNEL_ID`
 3. `npm run deploy-commands`
 4. `npm start`
+
+## Tests
+
+`npm test` (test runner intégré de Node, `node --test`, zéro dépendance
+supplémentaire). Les fichiers `*.test.js` sous `test/` couvrent les
+fonctions pures et isolées (permissions, validation, parsing, extraction
+OCR) — pas les commandes complètes (dépendance forte à l'API discord.js,
+non mockée). Certains helpers privés (`shuffle`/`buildTeams`,
+`parseDates`, `buildOverwrites`, `extractNumbersInReadingOrder`) sont
+exportés en plus de l'export par défaut de leur commande uniquement pour
+être testables. `test-support/fakeDiscord.js` fournit des mocks
+discord.js minimalistes réutilisés entre plusieurs fichiers de test.
+
+Les tests touchant la base (`test/db/`) tournent sur un fichier SQLite
+temporaire (`BOT_DB_PATH`, voir `src/db/database.js`) — **jamais** sur
+`data/bot.db`.
 
 ## Variables d'environnement
 
