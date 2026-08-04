@@ -9,7 +9,7 @@
 // gauche à droite), et on les assigne positionnellement aux 8 zones
 // attendues (tirs reçus : pistolet/plastron/épaules/dos, puis tirs envoyés :
 // même ordre). C'est fragile — d'où la vérification humaine par un Référant
-// via /score-modifier après coup (scores.needsReview signale les cas où le
+// via /edit-score après coup (scores.needsReview signale les cas où le
 // nombre de valeurs trouvées ne correspond pas au nombre attendu).
 
 import { createWorker } from 'tesseract.js';

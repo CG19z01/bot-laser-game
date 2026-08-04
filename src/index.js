@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import { loadEnv } from './config/env.js';
 import { initSchema } from './db/initSchema.js';
 import { loadCommands } from './utils/loadCommands.js';
@@ -15,6 +15,11 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
   ],
+  // Sans ça, les événements de réaction sur un message absent du cache
+  // (donc tout message envoyé avant le dernier redémarrage) ne sont
+  // jamais émis par discord.js — autorole/sondages cessaient de
+  // fonctionner sur les anciens messages après chaque redémarrage.
+  partials: [Partials.Message, Partials.Reaction, Partials.User],
 });
 
 client.env = env;

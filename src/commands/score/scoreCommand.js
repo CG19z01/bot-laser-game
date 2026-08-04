@@ -1,6 +1,6 @@
 // Commande /score : orchestre imageProcessor (normalisation) et
 // scoreExtractor (OCR local + heuristique), enregistre le résultat en base
-// pour permettre sa correction ultérieure via /score-modifier, puis
+// pour permettre sa correction ultérieure via /edit-score, puis
 // construit l'embed Discord (avec la photo, pour comparaison directe par un
 // Référant dans le salon où la commande a été utilisée).
 
@@ -29,7 +29,7 @@ function buildScoreEmbed(scores, id) {
       { name: 'Tirs reçus', value: formatZones(scores.tirs_recus), inline: true },
       { name: 'Tirs envoyés', value: formatZones(scores.tirs_envoyes), inline: true }
     )
-    .setFooter({ text: `ID: ${id}${warning} • Vérification recommandée par un Référant (/score-modifier)` })
+    .setFooter({ text: `ID: ${id}${warning} • Vérification recommandée par un Référant (/edit-score)` })
     .setColor(0x00aeef);
 }
 

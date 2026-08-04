@@ -60,6 +60,14 @@ const copierPermissionsCommand = {
       return;
     }
     const targets = resolved.map((r) => r.role);
+    // "@@everyone" en entrée est normalisé en "@everyone" par
+    // resolveRolesByNames (le préfixe "@" est retiré) et matche le vrai
+    // rôle @everyone du serveur — sans cette garde, la copie globale plus
+    // bas appliquerait les autorisations de `source` à tous les membres.
+    if (targets.some((target) => target.id === interaction.guild.roles.everyone.id)) {
+      await interaction.editReply({ content: 'Impossible de cibler @everyone avec cette commande.' });
+      return;
+    }
     const targetLabel = targets.map((role) => `<@&${role.id}>`).join(', ');
 
     const sourceSalon = interaction.options.getChannel('salon');

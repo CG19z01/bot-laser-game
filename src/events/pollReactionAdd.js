@@ -38,9 +38,10 @@ export default {
     });
 
     const adminChannel = await message.client.channels.fetch(message.client.env.adminChannelId);
-    await adminChannel.send(
-      `Sondage clos dans <#${poll.channelId}> — date retenue : **${poll.dates[winningIndex]}** (${total} réactions).`
-    );
+    await adminChannel.send({
+      content: `Sondage clos dans <#${poll.channelId}> — date retenue : **${poll.dates[winningIndex]}** (${total} réactions).`,
+      allowedMentions: { parse: [] },
+    });
 
     await sendLog(
       message.client,

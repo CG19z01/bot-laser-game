@@ -1,7 +1,8 @@
 // Normalise n'importe quel format d'attachment Discord (iOS .heic/.heif,
-// Android .jpg/.png/.webp) en un buffer JPEG redimensionné prêt à envoyer à
-// l'API Anthropic. Séparé de scoreExtractor.js car c'est une transformation
-// d'image pure, sans dépendance à l'API — testable et remplaçable seule.
+// Android .jpg/.png/.webp) en un buffer JPEG redimensionné, prêt pour l'OCR
+// local (scoreExtractor.js). Séparé de scoreExtractor.js car c'est une
+// transformation d'image pure, sans dépendance à l'OCR — testable et
+// remplaçable seule.
 
 import sharp from 'sharp';
 import convert from 'heic-convert';

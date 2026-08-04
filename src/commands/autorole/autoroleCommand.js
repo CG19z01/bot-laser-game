@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getAutoroleRoles } from '../../db/autorole/getAutoroleRoles.js';
 import { upsertAutoroleRole } from '../../db/autorole/upsertAutoroleRole.js';
+import { updateAutoroleMessageId } from '../../db/autorole/updateAutoroleMessageId.js';
 import { normalizeEmoji } from '../../autorole/normalizeEmoji.js';
 import { sendLog } from '../../logs/sendLog.js';
 import { requireRole } from '../../permissions/requireRole.js';
@@ -61,10 +62,20 @@ const autoroleCommand = {
       }
     }
     if (!message) {
+      // Le message précédent a été supprimé (ou n'existait pas encore) :
+      // toutes les lignes existantes pointaient vers son ID, désormais mort.
+      // Sans cette mise à jour, seul l'émoji en cours d'ajout serait
+      // fonctionnel sur le nouveau message — les autres promos deviendraient
+      // décoratives (message_id ne matchant plus rien en base).
       message = await channel.send({ content, allowedMentions: { parse: [] } });
+      updateAutoroleMessageId(interaction.guildId, message.id);
+      for (const r of updatedRoles) {
+        await message.react(r.emojiDisplay);
+      }
+    } else {
+      await message.react(emojiDisplay);
     }
 
-    await message.react(emojiDisplay);
     upsertAutoroleRole(interaction.guildId, emojiKey, emojiDisplay, role.id, message.id);
 
     await sendLog(

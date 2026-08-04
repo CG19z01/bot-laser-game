@@ -228,7 +228,7 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
 
 ## Permissions
 
-Toutes les commandes (sauf `/score`) sont masquées par défaut dans le
+Toutes les commandes (sauf `/score` et `/aide`) sont masquées par défaut dans le
 client Discord (`setDefaultMemberPermissions(0n)`) — le contrôle réel se
 fait par nom de rôle dans le code. Pour que STAFF/Référant les voient dans
 Discord, il faut aussi les ajouter manuellement par commande dans
