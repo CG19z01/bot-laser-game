@@ -5,14 +5,14 @@ import { getDb } from '../database.js';
 // exclut toute injection (une valeur hors liste lève une erreur au lieu
 // d'atteindre la requête).
 const FIELD_COLUMNS = [
-  'tirs_recus_pistolet',
-  'tirs_recus_plastron',
-  'tirs_recus_epaules',
-  'tirs_recus_dos',
-  'tirs_envoyes_pistolet',
-  'tirs_envoyes_plastron',
-  'tirs_envoyes_epaules',
-  'tirs_envoyes_dos',
+  'recus_av',
+  'recus_ar',
+  'recus_ep',
+  'recus_pi',
+  'donnes_av',
+  'donnes_ar',
+  'donnes_ep',
+  'donnes_pi',
 ];
 
 export function updateScoreField(id, field, value) {

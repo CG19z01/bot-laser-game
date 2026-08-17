@@ -18,16 +18,19 @@ const { initSchema } = await import('../../../src/db/initSchema.js');
 const { createScoreRecord } = await import('../../../src/db/scores/createScoreRecord.js');
 const { updateScoreField } = await import('../../../src/db/scores/updateScoreField.js');
 
-const SAMPLE_SCORES = {
-  tirs_recus: { pistolet: 1, plastron: 2, epaules: 3, dos: 4 },
-  tirs_envoyes: { pistolet: 5, plastron: 6, epaules: 7, dos: 8 },
+const SAMPLE_EXTRACTION = {
+  pseudo: 'Smilke',
+  effTir: '1.82',
+  score: 2600,
+  recus: { av: 1, ar: 2, ep: 3, pi: 4 },
+  donnes: { av: 5, ar: 6, ep: 7, pi: 8 },
 };
 
 let recordId;
 
 before(() => {
   initSchema();
-  recordId = createScoreRecord('g', 'c', 'u', SAMPLE_SCORES);
+  recordId = createScoreRecord('g', 'c', 's', 'u', SAMPLE_EXTRACTION);
 });
 
 after(() => {
@@ -39,10 +42,11 @@ test('rejette un nom de colonne malveillant (injection SQL) sans toucher la base
   const before = getDb().prepare('SELECT * FROM score_records WHERE id = ?').get(recordId);
 
   const malicious = [
-    'tirs_recus_pistolet; DROP TABLE score_records;--',
-    'tirs_recus_pistolet = 999 WHERE 1=1 --',
+    'recus_av; DROP TABLE score_records;--',
+    'recus_av = 999 WHERE 1=1 --',
     'id',
     'guild_id',
+    'pseudo',
     'created_at',
     "1) OR (1=1",
   ];
@@ -61,7 +65,7 @@ test('rejette un nom de colonne malveillant (injection SQL) sans toucher la base
 });
 
 test('met à jour un champ valide', () => {
-  updateScoreField(recordId, 'tirs_recus_plastron', 99);
-  const row = getDb().prepare('SELECT tirs_recus_plastron FROM score_records WHERE id = ?').get(recordId);
-  assert.equal(row.tirs_recus_plastron, 99);
+  updateScoreField(recordId, 'recus_ar', 99);
+  const row = getDb().prepare('SELECT recus_ar FROM score_records WHERE id = ?').get(recordId);
+  assert.equal(row.recus_ar, 99);
 });

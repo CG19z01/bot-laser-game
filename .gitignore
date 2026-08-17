@@ -1,3 +1,9 @@
 node_modules/
 .env
 data/
+
+# Modèle de langue téléchargé automatiquement par Tesseract.js au premier appel
+*.traineddata
+
+# Prototypes de mise au point du pipeline OCR (chemins locaux, non portables)
+proto/

@@ -16,6 +16,14 @@ const { initSchema } = await import('../../../src/db/initSchema.js');
 const { createScoreRecord } = await import('../../../src/db/scores/createScoreRecord.js');
 const { getScoreRecord } = await import('../../../src/db/scores/getScoreRecord.js');
 
+const EXTRACTION = {
+  pseudo: 'Smilke',
+  effTir: '1.82',
+  score: 2600,
+  recus: { av: 12, ar: 7, ep: 1, pi: 6 },
+  donnes: { av: 23, ar: 6, ep: 4, pi: 6 },
+};
+
 before(() => initSchema());
 after(() => {
   getDb().close();
@@ -23,25 +31,24 @@ after(() => {
 });
 
 test('createScoreRecord puis getScoreRecord renvoie les mêmes valeurs', () => {
-  const scores = {
-    tirs_recus: { pistolet: 3, plastron: 12, epaules: 1, dos: 0 },
-    tirs_envoyes: { pistolet: 5, plastron: 8, epaules: 2, dos: 1 },
-  };
-
-  const id = createScoreRecord('guild-1', 'channel-1', 'user-1', scores);
+  const id = createScoreRecord('guild-1', 'channel-1', 'submitter-1', 'user-1', EXTRACTION);
   const record = getScoreRecord(id);
 
   assert.equal(record.guild_id, 'guild-1');
   assert.equal(record.channel_id, 'channel-1');
-  assert.equal(record.submitted_by, 'user-1');
-  assert.equal(record.tirs_recus_pistolet, 3);
-  assert.equal(record.tirs_recus_plastron, 12);
-  assert.equal(record.tirs_recus_epaules, 1);
-  assert.equal(record.tirs_recus_dos, 0);
-  assert.equal(record.tirs_envoyes_pistolet, 5);
-  assert.equal(record.tirs_envoyes_plastron, 8);
-  assert.equal(record.tirs_envoyes_epaules, 2);
-  assert.equal(record.tirs_envoyes_dos, 1);
+  assert.equal(record.submitted_by, 'submitter-1');
+  assert.equal(record.user_id, 'user-1');
+  assert.equal(record.pseudo, 'Smilke');
+  assert.equal(record.eff_tir, '1.82');
+  assert.equal(record.score, 2600);
+  assert.equal(record.recus_av, 12);
+  assert.equal(record.recus_ar, 7);
+  assert.equal(record.recus_ep, 1);
+  assert.equal(record.recus_pi, 6);
+  assert.equal(record.donnes_av, 23);
+  assert.equal(record.donnes_ar, 6);
+  assert.equal(record.donnes_ep, 4);
+  assert.equal(record.donnes_pi, 6);
 });
 
 test('getScoreRecord renvoie undefined pour un ID inexistant', () => {
@@ -49,11 +56,7 @@ test('getScoreRecord renvoie undefined pour un ID inexistant', () => {
 });
 
 test('chaque appel à createScoreRecord génère un ID différent', () => {
-  const scores = {
-    tirs_recus: { pistolet: 0, plastron: 0, epaules: 0, dos: 0 },
-    tirs_envoyes: { pistolet: 0, plastron: 0, epaules: 0, dos: 0 },
-  };
-  const id1 = createScoreRecord('g', 'c', 'u', scores);
-  const id2 = createScoreRecord('g', 'c', 'u', scores);
+  const id1 = createScoreRecord('g', 'c', 's', 'u', EXTRACTION);
+  const id2 = createScoreRecord('g', 'c', 's', 'u', EXTRACTION);
   assert.notEqual(id1, id2);
 });

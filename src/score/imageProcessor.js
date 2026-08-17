@@ -1,8 +1,12 @@
 // Normalise n'importe quel format d'attachment Discord (iOS .heic/.heif,
-// Android .jpg/.png/.webp) en un buffer JPEG redimensionné, prêt pour l'OCR
-// local (scoreExtractor.js). Séparé de scoreExtractor.js car c'est une
+// Android .jpg/.png/.webp) en un buffer JPEG redimensionné, point d'entrée du
+// pipeline d'extraction. Séparé de scoreExtractor.js car c'est une
 // transformation d'image pure, sans dépendance à l'OCR — testable et
 // remplaçable seule.
+//
+// La couleur est conservée : cropToSheet.js s'en sert pour distinguer la
+// feuille (claire, peu saturée) de l'arrière-plan. Le passage en niveaux de
+// gris se fait plus loin, seulement là où c'est utile.
 
 import sharp from 'sharp';
 import convert from 'heic-convert';
@@ -47,8 +51,6 @@ export async function normalizeImage(buffer, filename) {
       fit: 'inside',
       withoutEnlargement: true,
     })
-    .grayscale()
-    .normalize() // améliore le contraste pour aider Tesseract à distinguer les chiffres
     .jpeg({ quality: JPEG_QUALITY })
     .toBuffer();
 }

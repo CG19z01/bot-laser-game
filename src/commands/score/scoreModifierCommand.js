@@ -1,7 +1,7 @@
 // Commande réservée à Administrateur/STAFF/Référant pour corriger une valeur
-// extraite automatiquement par /score, après comparaison avec la photo
-// (l'OCR local est peu fiable — voir src/score/scoreExtractor.js). Séparée
-// de scoreCommand.js : responsabilité distincte (correction vs extraction).
+// extraite automatiquement par /score, après comparaison avec la photo.
+// Indispensable : l'OCR laisse passer environ une cellule sur cinquante, et
+// la vérification par somme de contrôle signale l'écart sans le corriger.
 
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { requireRole } from '../../permissions/requireRole.js';
@@ -9,18 +9,13 @@ import { getScoreRecord } from '../../db/scores/getScoreRecord.js';
 import { updateScoreField } from '../../db/scores/updateScoreField.js';
 import { sendLog } from '../../logs/sendLog.js';
 import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { SCORE_ZONES } from '../../config/scoreConfig.js';
 
 const ALLOWED_ROLE_NAMES = COMMAND_ROLES['edit-score'];
 
 const FIELD_CHOICES = [
-  { name: 'Tirs reçus - Pistolet', value: 'tirs_recus_pistolet' },
-  { name: 'Tirs reçus - Plastron', value: 'tirs_recus_plastron' },
-  { name: 'Tirs reçus - Épaules', value: 'tirs_recus_epaules' },
-  { name: 'Tirs reçus - Dos', value: 'tirs_recus_dos' },
-  { name: 'Tirs envoyés - Pistolet', value: 'tirs_envoyes_pistolet' },
-  { name: 'Tirs envoyés - Plastron', value: 'tirs_envoyes_plastron' },
-  { name: 'Tirs envoyés - Épaules', value: 'tirs_envoyes_epaules' },
-  { name: 'Tirs envoyés - Dos', value: 'tirs_envoyes_dos' },
+  ...SCORE_ZONES.map((zone) => ({ name: `Reçus - ${zone.label}`, value: `recus_${zone.key}` })),
+  ...SCORE_ZONES.map((zone) => ({ name: `Donnés - ${zone.label}`, value: `donnes_${zone.key}` })),
 ];
 
 const scoreModifierCommand = {
@@ -53,11 +48,13 @@ const scoreModifierCommand = {
     const oldValue = record[field];
     updateScoreField(id, field, value);
 
-    await interaction.reply(`✅ Score #${id} mis à jour : \`${field}\` ${oldValue} → ${value}`);
+    await interaction.reply(
+      `✅ Score #${id} (${record.pseudo}) mis à jour : \`${field}\` ${oldValue} → ${value}`
+    );
 
     await sendLog(
       interaction.client,
-      `📝 ${interaction.user.tag} a modifié le score #${id} (\`${field}\`) : ${oldValue} → ${value} dans <#${interaction.channelId}>.`
+      `📝 ${interaction.user.tag} a modifié le score #${id} de ${record.pseudo} (\`${field}\`) : ${oldValue} → ${value} dans <#${interaction.channelId}>.`
     );
   },
 };

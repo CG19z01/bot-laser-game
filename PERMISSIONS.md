@@ -1,22 +1,24 @@
 # Permissions des commandes - Bot Laser Game
 
-| Commande              | Restriction (visibilité) | Restriction code (rôle) | Rôles à ajouter manuellement dans Discord |
-|-----------------------|--------------------------|-------------------------|-------------------------------------------|
-| `/autorole add`       | Masquée par défaut (0n)  | Admin                   | Admin                                     |
-| `/antispam limit`     | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
-| `/mute`               | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
-| `/delete`             | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
-| `/copie-cat      `    | Masquée par défaut (0n)  | Admin                   | Admin                                     |
-| `/nouvelle-promo`     | Masquée par défaut (0n)  | Admin                   | Admin                                     |
-| `/copie-perm`         | Masquée par défaut (0n)  | Admin                   | Admin                                     |
-| `/equipe`             | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
-| `/sondage`            | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
-| `/edit-score`         | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
-| `/score`              | (aucune)                 | (aucune)                | (aucune)                                  |
-| `/aide`               | (aucune)                 | (aucune)                | (aucune)                                  |
-| `/deco`               | Masquée par défaut (0n)  | Admin                   | Admin                                     |
+| Commande          | Restriction (visibilité) | Restriction code (rôle) | Rôles à ajouter manuellement dans Discord |
+|-------------------|--------------------------|-------------------------|-------------------------------------------|
+| `/autorole add`   | Masquée par défaut (0n)  | Admin                   | Admin                                     |
+| `/antispam limit` | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
+| `/mute`           | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
+| `/delete`         | Masquée par défaut (0n)  | Admin, STAFF            | Admin, STAFF                              |
+| `/copie-cat`      | Masquée par défaut (0n)  | Admin                   | Admin                                     |
+| `/nouvelle-promo` | Masquée par défaut (0n)  | Admin                   | Admin                                     |
+| `/copie-perm`     | Masquée par défaut (0n)  | Admin                   | Admin                                     |
+| `/equipe`         | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
+| `/sondage`        | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
+| `/edit-score`     | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
+| `/score`          | (aucune)                 | (aucune)                | (aucune)                                  |
+| `/mon-pseudo`     | (aucune)                 | (aucune)                | (aucune)                                  |
+| `/stats`          | (aucune)                 | (aucune)                | (aucune)                                  |
+| `/aide`           | (aucune)                 | (aucune)                | (aucune)                                  |
+| `/deco`           | Masquée par défaut (0n)  | Admin                   | Admin                                     |
 
-## Cooldown /score (comportement modul par le role)
+## Cooldown /score (comportement module par le role)
 
 `/score` reste ouverte a tous, mais applique un delai entre deux scans,
 plus court selon le role (config : `SCORE_COOLDOWNS` dans
@@ -34,10 +36,10 @@ complement, un seul OCR tourne a la fois pour tout le bot
 
 ## A faire cote Discord
 
-Toutes les commandes (sauf /score et /aide) sont masquees par defaut
-(0n) : seuls les vrais **Administrateurs Discord** les voient tant que
-les roles listes en derniere colonne ne sont pas ajoutes manuellement,
-dans le serveur Discord :
+Toutes les commandes sauf `/score`, `/mon-pseudo`, `/stats` et `/aide`
+sont masquees par defaut (0n) : seuls les vrais **Administrateurs
+Discord** les voient tant que les roles listes en derniere colonne ne
+sont pas ajoutes manuellement, dans le serveur Discord :
 
 **Parametres du serveur -> Integrations -> Bot Laser Game -> [commande]**
 -> ajouter les roles listes dans la derniere colonne.
@@ -50,3 +52,4 @@ qui n a pas le role.
 
 `src/permissions/commandRoles.js` doit etre tenu a jour en meme temps
 que ce tableau (utilise par /aide pour filtrer les commandes visibles).
+Un test verifie automatiquement que les deux restent synchronises.

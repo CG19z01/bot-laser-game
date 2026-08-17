@@ -1,51 +1,110 @@
-// Extrait les scores d'une feuille de résultats déjà normalisée en JPEG, via
-// OCR local (Tesseract.js — pas d'appel API externe, gratuit). Séparé
-// d'imageProcessor.js car c'est une étape de reconnaissance de texte, pas de
-// transformation d'image.
+// Orchestration de l'extraction : de la photo brute aux valeurs du joueur.
 //
-// Heuristique : on ne connaît pas la mise en page exacte de la feuille, donc
-// on ne peut pas découper des cellules précises. On repère tous les nombres
-// reconnus par l'OCR, on les trie dans l'ordre de lecture (haut en bas,
-// gauche à droite), et on les assigne positionnellement aux 8 zones
-// attendues (tirs reçus : pistolet/plastron/épaules/dos, puis tirs envoyés :
-// même ordre). C'est fragile — d'où la vérification humaine par un Référant
-// via /edit-score après coup (scores.needsReview signale les cas où le
-// nombre de valeurs trouvées ne correspond pas au nombre attendu).
+// Le pseudo est fourni par l'appelant, pas lu sur la feuille : la lecture
+// OCR d'un nom propre est nettement moins fiable que celle d'un chiffre, et
+// une erreur dessus rattacherait la partie au mauvais joueur. Il sert ici à
+// retrouver la ligne du joueur dans le tableau de gauche (Eff. Tir, Score).
+//
+// Chaque valeur provient de la lecture de sa propre cellule. Les totaux
+// d'en-tête (« 26 Reçues Joueur(s) », « 39 Données ») servent uniquement à
+// VÉRIFIER le résultat, jamais à compléter une cellule illisible : une case
+// ratée doit rester visible comme telle, pas être devinée par soustraction.
 
-import { createWorker } from 'tesseract.js';
+import { createWorker, PSM } from 'tesseract.js';
 import { OCR_LANGUAGE, SCORE_ZONES } from '../config/scoreConfig.js';
+import { cropToSheet } from './cropToSheet.js';
+import { deskewSheet } from './deskewSheet.js';
+import { detectGrid } from './detectGrid.js';
+import { prepareSheetForOcr } from './prepareSheetForOcr.js';
+import { sheetWhiteLevel } from './sheetWhiteLevel.js';
+import { readCellDigits } from './readCellDigits.js';
+import { readSheetHeader } from './readSheetHeader.js';
+import { readPlayerLine } from './readPlayerLine.js';
 
-const FIELD_ORDER = [
-  ...SCORE_ZONES.map((zone) => ['tirs_recus', zone]),
-  ...SCORE_ZONES.map((zone) => ['tirs_envoyes', zone]),
-];
+// Tableau du milieu : Av Ar Ep Pi Total  -> les zones commencent en colonne 0
+// Tableau de droite : Total Av Ar Ep Pi  -> elles commencent en colonne 1
+const RECUS_OFFSET = 0;
+const DONNES_OFFSET = 1;
 
-// Exportée en plus d'extractScores() uniquement pour être testée
-// unitairement — pas d'autre appelant en dehors de ce fichier.
-export function extractNumbersInReadingOrder(words) {
-  return words
-    .filter((word) => /^\d+$/.test(word.text.trim()))
-    .sort((a, b) => a.bbox.y0 - b.bbox.y0 || a.bbox.x0 - b.bbox.x0)
-    .map((word) => Number.parseInt(word.text, 10));
+function tableRegion(table, rows) {
+  return {
+    left: table[0],
+    top: rows[0].y0,
+    width: table[table.length - 1] - table[0],
+    height: rows[rows.length - 1].y1 - rows[0].y0,
+  };
 }
 
-export async function extractScores(imageBuffer) {
+async function sumZoneColumns(worker, image, table, offset, rows, whiteLevel) {
+  const totals = Object.fromEntries(SCORE_ZONES.map((zone) => [zone.key, 0]));
+
+  for (const row of rows) {
+    for (let column = 0; column < SCORE_ZONES.length; column++) {
+      const value = await readCellDigits(
+        worker,
+        image,
+        {
+          x0: table[column + offset],
+          x1: table[column + offset + 1],
+          y0: row.y0,
+          y1: row.y1,
+        },
+        whiteLevel
+      );
+      if (value !== null) totals[SCORE_ZONES[column].key] += value;
+    }
+  }
+
+  return totals;
+}
+
+export async function extractScores(imageBuffer, pseudo) {
+  const sheet = await deskewSheet(await cropToSheet(imageBuffer));
+  const { rows, tables } = await detectGrid(sheet);
+  if (tables.length < 3) {
+    const error = new Error('Les trois tableaux attendus n\'ont pas été trouvés.');
+    error.code = 'GRID_INCOMPLETE';
+    throw error;
+  }
+
+  const image = await prepareSheetForOcr(sheet);
   const worker = await createWorker(OCR_LANGUAGE);
-  let words;
+
   try {
-    const { data } = await worker.recognize(imageBuffer);
-    words = data.words;
+    const header = await readSheetHeader(worker, image, rows[0].y0);
+    const player = await readPlayerLine(worker, image, tables[0], rows, pseudo);
+
+    await worker.setParameters({
+      tessedit_pageseg_mode: PSM.SINGLE_WORD,
+      tessedit_char_whitelist: '0123456789',
+    });
+
+    const recus = await sumZoneColumns(
+      worker, image, tables[1], RECUS_OFFSET, rows,
+      await sheetWhiteLevel(image, tableRegion(tables[1], rows))
+    );
+    const donnes = await sumZoneColumns(
+      worker, image, tables[2], DONNES_OFFSET, rows,
+      await sheetWhiteLevel(image, tableRegion(tables[2], rows))
+    );
+
+    return {
+      pseudo,
+      pseudoFound: player.found,
+      effTir: player.effTir,
+      score: player.score,
+      recus,
+      donnes,
+      checks: {
+        recus: { lu: sum(recus), attendu: header.recusTotal },
+        donnes: { lu: sum(donnes), attendu: header.donnesTotal },
+      },
+    };
   } finally {
     await worker.terminate();
   }
+}
 
-  const numbers = extractNumbersInReadingOrder(words);
-  const needsReview = numbers.length !== FIELD_ORDER.length;
-
-  const scores = { tirs_recus: {}, tirs_envoyes: {}, needsReview };
-  FIELD_ORDER.forEach(([table, zone], index) => {
-    scores[table][zone] = numbers[index] ?? 0;
-  });
-
-  return scores;
+function sum(totals) {
+  return Object.values(totals).reduce((a, b) => a + b, 0);
 }

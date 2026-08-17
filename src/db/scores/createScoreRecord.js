@@ -1,26 +1,32 @@
 import { getDb } from '../database.js';
 
-export function createScoreRecord(guildId, channelId, submittedBy, scores) {
+export function createScoreRecord(guildId, channelId, submittedBy, userId, extraction) {
+  const { pseudo, effTir, score, recus, donnes } = extraction;
+
   const result = getDb()
     .prepare(
       `INSERT INTO score_records (
-         guild_id, channel_id, submitted_by,
-         tirs_recus_pistolet, tirs_recus_plastron, tirs_recus_epaules, tirs_recus_dos,
-         tirs_envoyes_pistolet, tirs_envoyes_plastron, tirs_envoyes_epaules, tirs_envoyes_dos
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         guild_id, channel_id, submitted_by, user_id, pseudo, eff_tir, score,
+         recus_av, recus_ar, recus_ep, recus_pi,
+         donnes_av, donnes_ar, donnes_ep, donnes_pi
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       guildId,
       channelId,
       submittedBy,
-      scores.tirs_recus.pistolet,
-      scores.tirs_recus.plastron,
-      scores.tirs_recus.epaules,
-      scores.tirs_recus.dos,
-      scores.tirs_envoyes.pistolet,
-      scores.tirs_envoyes.plastron,
-      scores.tirs_envoyes.epaules,
-      scores.tirs_envoyes.dos
+      userId,
+      pseudo,
+      effTir,
+      score,
+      recus.av,
+      recus.ar,
+      recus.ep,
+      recus.pi,
+      donnes.av,
+      donnes.ar,
+      donnes.ep,
+      donnes.pi
     );
 
   return result.lastInsertRowid;

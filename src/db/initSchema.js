@@ -1,4 +1,5 @@
 import { getDb } from './database.js';
+import { migrateScoreRecords } from './migrateScoreRecords.js';
 
 export function initSchema() {
   getDb().exec(`
@@ -30,19 +31,30 @@ export function initSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS score_records (
-      id                    INTEGER PRIMARY KEY AUTOINCREMENT,
-      guild_id              TEXT NOT NULL,
-      channel_id            TEXT NOT NULL,
-      submitted_by          TEXT NOT NULL,
-      tirs_recus_pistolet   INTEGER NOT NULL,
-      tirs_recus_plastron   INTEGER NOT NULL,
-      tirs_recus_epaules    INTEGER NOT NULL,
-      tirs_recus_dos        INTEGER NOT NULL,
-      tirs_envoyes_pistolet INTEGER NOT NULL,
-      tirs_envoyes_plastron INTEGER NOT NULL,
-      tirs_envoyes_epaules  INTEGER NOT NULL,
-      tirs_envoyes_dos      INTEGER NOT NULL,
-      created_at            TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      guild_id     TEXT NOT NULL,
+      channel_id   TEXT NOT NULL,
+      submitted_by TEXT NOT NULL,
+      user_id      TEXT NOT NULL,
+      pseudo       TEXT NOT NULL,
+      eff_tir      TEXT,
+      score        INTEGER,
+      recus_av     INTEGER NOT NULL,
+      recus_ar     INTEGER NOT NULL,
+      recus_ep     INTEGER NOT NULL,
+      recus_pi     INTEGER NOT NULL,
+      donnes_av    INTEGER NOT NULL,
+      donnes_ar    INTEGER NOT NULL,
+      donnes_ep    INTEGER NOT NULL,
+      donnes_pi    INTEGER NOT NULL,
+      created_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS player_pseudos (
+      guild_id TEXT NOT NULL,
+      user_id  TEXT NOT NULL,
+      pseudo   TEXT NOT NULL,
+      PRIMARY KEY (guild_id, user_id)
     );
   `);
 
@@ -57,4 +69,6 @@ export function initSchema() {
       ) - 1;
     `);
   }
+
+  migrateScoreRecords();
 }

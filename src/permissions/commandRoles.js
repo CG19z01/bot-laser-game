@@ -15,6 +15,8 @@ export const COMMAND_ROLES = {
   sondage: ['Administrateur', 'STAFF', 'Référant'],
   'edit-score': ['Administrateur', 'STAFF', 'Référant'],
   score: null,
+  'mon-pseudo': null,
+  stats: null,
   aide: null,
   deco: ['Administrateur'],
 };

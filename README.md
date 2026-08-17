@@ -12,9 +12,11 @@ obtient le rôle associé en réagissant, le perd en retirant sa réaction —
 timeout configurables), **sondages** (choix d'une date parmi plusieurs
 propositions par réactions), **équipes aléatoires** (répartition au
 hasard d'une liste de joueurs), **extraction de scores** (lecture d'une
-photo de feuille de résultats par OCR local, avec correction possible par
-un Référant), **aide** (liste des commandes accessibles selon le rôle) et
-**déconnexion manuelle** du bot par un Administrateur.
+photo de feuille de résultats par OCR local, avec vérification automatique
+et correction possible par un Référant), **statistiques joueur** (cumul des
+coups reçus et donnés par zone au fil des parties), **aide** (liste des
+commandes accessibles selon le rôle) et **déconnexion manuelle** du bot par
+un Administrateur.
 
 ## Structure du projet
 
@@ -23,7 +25,8 @@ src/
 ├── index.js               entrypoint
 ├── deployCommands.js      enregistrement des slash commands
 ├── config/env.js          lecture des variables d'environnement
-├── db/                    accès SQLite (connexion, schéma, autorole/, antispam/, polls/, scores/)
+├── db/                    accès SQLite (connexion, schéma, migrations,
+│                          autorole/, antispam/, polls/, scores/, pseudos/)
 ├── antispam/              suivi en mémoire des messages (fenêtre glissante)
 ├── autorole/              normalisation des émojis pour le rôle par réaction
 ├── polls/                 émojis utilisés pour le vote par date
@@ -31,12 +34,13 @@ src/
 ├── permissions/           vérification de rôle par nom (STAFF, Référant...)
 │                          et rôles autorisés par commande (commandRoles.js,
 │                          utilisé par /aide)
-├── score/                 normalisation d'image (imageProcessor) et OCR
-│                          local Tesseract.js (scoreExtractor) pour /score
+├── score/                 pipeline d'extraction /score : recadrage,
+│                          redressement, détection du quadrillage, OCR
+│                          cellule par cellule (Tesseract.js)
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
 │                          /sondage, /equipe, /copie-cat, /nouvelle-promo,
 │                          /copie-perm, /score, /edit-score,
-│                          /aide, /deco
+│                          /mon-pseudo, /stats, /aide, /deco
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
@@ -78,9 +82,8 @@ supplémentaire). Les fichiers `*.test.js` sous `test/` couvrent les
 fonctions pures et isolées (permissions, validation, parsing, extraction
 OCR) — pas les commandes complètes (dépendance forte à l'API discord.js,
 non mockée). Certains helpers privés (`shuffle`/`buildTeams`,
-`parseDates`, `buildOverwrites`, `extractNumbersInReadingOrder`) sont
-exportés en plus de l'export par défaut de leur commande uniquement pour
-être testables. `test-support/fakeDiscord.js` fournit des mocks
+`parseDates`, `buildOverwrites`) sont exportés en plus de l'export par
+défaut de leur commande uniquement pour être testables. `test-support/fakeDiscord.js` fournit des mocks
 discord.js minimalistes réutilisés entre plusieurs fichiers de test.
 
 Les tests touchant la base (`test/db/`) tournent sur un fichier SQLite
@@ -192,24 +195,36 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   de `source`.
   Réservée au rôle **Administrateur**.
 
-- `/score <image>` — extrait automatiquement les scores d'une photo de
-  feuille de résultats laser game envoyée en pièce jointe (`.jpg`, `.jpeg`,
-  `.png`, `.webp`, `.heic`, `.heif`). L'image est normalisée en JPEG
-  (`src/score/imageProcessor.js` : conversion HEIC/HEIF, redimensionnement
-  2000px max, niveaux de gris + contraste) puis analysée par **OCR local**
-  (`src/score/scoreExtractor.js`, Tesseract.js — gratuit, aucun appel
-  externe). ⚠️ **Heuristique fragile** : la mise en page de la feuille
-  n'étant pas connue à l'avance, les nombres reconnus sont assignés aux 8
-  zones (pistolet/plastron/épaules/dos × tirs reçus/envoyés) simplement dans
-  l'ordre de lecture (haut en bas, gauche à droite) — tout autre nombre
-  présent sur la photo (date, numéro de page...) peut décaler l'assignation
-  sans que ce soit détecté. Le résultat (photo + valeurs + un ID) est
-  enregistré en base et affiché en embed dans le salon où la commande a été
-  utilisée ; un pied de page signale une extraction incertaine si le compte
-  de valeurs trouvées ne correspond pas à 8. Chaque étape (format non
-  supporté, échec de conversion) renvoie un message d'erreur clair plutôt
-  qu'un crash. Ouverte à tous les membres, avec deux garde-fous (l'OCR est
-  coûteux en RAM/CPU et le bot est mono-thread) :
+- `/score <image> [pseudo] [joueur]` — extrait les résultats d'une photo de feuille de
+  résultats Laser Game Evolution envoyée en pièce jointe (`.jpg`, `.jpeg`,
+  `.png`, `.webp`, `.heic`, `.heif`), par **OCR local** (Tesseract.js —
+  gratuit, aucun appel externe). Le pipeline (`src/score/`) enchaîne :
+  détection de la feuille sur le fond (`cropToSheet`), redressement de
+  l'inclinaison (`deskewSheet`), détection du quadrillage
+  (`detectGrid`), puis lecture **cellule par cellule** avec un seuil de
+  binarisation calculé pour chaque case (`otsuThreshold`,
+  `readCellDigits`). Sont lus : le pseudo en haut de feuille, l'`Eff. Tir`
+  et le `Score` sur la ligne du joueur, et les colonnes `Av`/`Ar`/`Ep`/`Pi`
+  des tableaux « reçus » et « donnés », sommées sur les lignes adverses.
+
+  Le **pseudo est saisi, pas deviné** : l'option `pseudo` (ou, à défaut,
+  celui enregistré via `/mon-pseudo`) sert à retrouver la ligne du joueur
+  dans le tableau de gauche. Reconnaître un nom propre par OCR est bien
+  moins fiable que reconnaître un chiffre, et une erreur rattacherait la
+  partie au mauvais joueur. Si le pseudo n'est pas trouvé sur la feuille,
+  la commande refuse au lieu d'enregistrer n'importe quoi. L'option
+  `joueur` permet à un Référant de scanner la feuille de quelqu'un d'autre.
+
+  **Vérification automatique** : les totaux calculés sont comparés à ceux
+  imprimés en en-tête de la feuille (« 26 Reçues Joueur(s) », « 39
+  Données »). En cas d'écart, l'embed passe en orange et signale les
+  chiffres douteux — ils ne sont **jamais** recalculés à partir du total,
+  une case illisible reste visible comme telle et se corrige avec
+  `/edit-score`. Mesuré sur la feuille de référence : 47 cellules
+  correctes sur 48, l'unique erreur étant bien signalée par ce contrôle.
+
+  Ouverte à tous les membres, avec deux garde-fous (l'OCR est coûteux en
+  RAM/CPU et le bot est mono-thread) :
   - **cooldown par utilisateur, modulé par le rôle** — Administrateur et
     STAFF sans limite, Référant 10s, tout le monde 60s (voir
     `SCORE_COOLDOWNS` dans `src/config/scoreConfig.js` ; un membre cumulant
@@ -223,9 +238,22 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
 - `/edit-score <id> <champ> <valeur>` — corrige une valeur d'un score
   après comparaison visuelle entre la photo et le résultat affiché par
   `/score` (l'`id` figure dans le pied de page de l'embed). `champ` est un
-  des 8 champs proposés en liste déroulante. Réservée aux rôles
+  des 8 champs proposés en liste déroulante (reçus/donnés × Av/Ar/Ep/Pi).
+  Réservée aux rôles
   **Administrateur**, **STAFF** et **Référant** ; chaque correction est
   postée dans `LOG_CHANNEL_ID`.
+
+- `/mon-pseudo <pseudo>` — enregistre ton pseudo laser game (celui imprimé
+  en haut de ta feuille) pour ne plus avoir à le retaper à chaque `/score`,
+  et pour qu'il serve de libellé dans `/stats`. Ouverte à tous, réponse
+  éphémère.
+
+- `/stats [membre]` — affiche le cumul des coups reçus et donnés, zone par
+  zone, sur toutes les parties enregistrées via `/score`. Sans argument,
+  affiche les tiennes ; avec `membre`, celles de quelqu'un d'autre. Le
+  regroupement se fait sur le **compte Discord**, pas sur le pseudo : un
+  joueur qui change de nom d'une session à l'autre garde un historique
+  unique. Ouverte à tous.
 
 - `/aide` — liste, en réponse éphémère, les commandes que l'utilisateur qui
   l'invoque peut effectivement utiliser (filtrage par rôle via
