@@ -12,12 +12,12 @@
 | `/equipe`         | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
 | `/sondage`        | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
 | `/edit-score`     | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
+| `/delete-score`   | Masquée par défaut (0n)  | Admin, STAFF, Référant  | Admin, STAFF, Référant                    |
 | `/score`          | (aucune)                 | (aucune)                | (aucune)                                  |
 | `/mon-pseudo`     | (aucune)                 | (aucune)                | (aucune)                                  |
 | `/stats`          | (aucune)                 | (aucune)                | (aucune)                                  |
 | `/aide`           | (aucune)                 | (aucune)                | (aucune)                                  |
 | `/deco`           | Masquée par défaut (0n)  | Admin                   | Admin                                     |
-
 ## Cooldown /score (comportement module par le role)
 
 `/score` reste ouverte a tous, mais applique un delai entre deux scans,

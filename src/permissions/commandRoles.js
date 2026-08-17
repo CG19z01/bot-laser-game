@@ -14,6 +14,7 @@ export const COMMAND_ROLES = {
   equipe: ['Administrateur', 'STAFF', 'Référant'],
   sondage: ['Administrateur', 'STAFF', 'Référant'],
   'edit-score': ['Administrateur', 'STAFF', 'Référant'],
+  'delete-score': ['Administrateur', 'STAFF', 'Référant'],
   score: null,
   'mon-pseudo': null,
   stats: null,

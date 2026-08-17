@@ -40,7 +40,8 @@ src/
 ├── commands/              commandes /autorole, /antispam, /delete, /mute,
 │                          /sondage, /equipe, /copie-cat, /nouvelle-promo,
 │                          /copie-perm, /score, /edit-score,
-│                          /mon-pseudo, /stats, /aide, /deco
+│                          /delete-score, /mon-pseudo, /stats,
+│                          /aide, /deco
 ├── events/                ready, interactionCreate, messageCreate,
 │                          pollReactionAdd, autoroleReactionAdd,
 │                          autoroleReactionRemove
@@ -108,7 +109,8 @@ erreurs de commande, attribution/retrait de rôle par réaction,
 modification de `/autorole add`, timeout anti-spam, purge manuelle via
 `/delete`, création et clôture de sondage, génération d'équipes,
 duplication de catégorie, tentative de `/copie-cat` sans le rôle requis,
-et correction d'un score via `/edit-score`.
+correction d'un score via `/edit-score` et suppression via
+`/delete-score`.
 
 ## Commandes disponibles
 
@@ -250,6 +252,14 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   des 8 champs proposés en liste déroulante (reçus/donnés × Av/Ar/Ep/Pi).
   Réservée aux rôles
   **Administrateur**, **STAFF** et **Référant** ; chaque correction est
+  postée dans `LOG_CHANNEL_ID`.
+
+- `/delete-score <id>` — supprime définitivement une partie enregistrée
+  (scan de test, feuille attribuée au mauvais joueur, doublon passé au
+  travers). Aucune confirmation n'est demandée : le message de retour
+  récapitule précisément ce qui a été retiré (joueur, totaux, date) pour
+  qu'une erreur d'ID se voie tout de suite. Réservée aux rôles
+  **Administrateur**, **STAFF** et **Référant** ; chaque suppression est
   postée dans `LOG_CHANNEL_ID`.
 
 - `/mon-pseudo <pseudo>` — enregistre ton pseudo laser game (celui imprimé
