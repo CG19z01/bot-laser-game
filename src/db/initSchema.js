@@ -39,6 +39,8 @@ export function initSchema() {
       pseudo       TEXT NOT NULL,
       eff_tir      TEXT,
       score        INTEGER,
+      recus_total  INTEGER,
+      donnes_total INTEGER,
       recus_av     INTEGER NOT NULL,
       recus_ar     INTEGER NOT NULL,
       recus_ep     INTEGER NOT NULL,

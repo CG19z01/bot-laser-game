@@ -17,7 +17,18 @@ const { createScoreRecord } = await import('../../../src/db/scores/createScoreRe
 const { getPlayerTotals } = await import('../../../src/db/scores/getPlayerTotals.js');
 
 function extraction(pseudo, recus, donnes) {
-  return { pseudo, effTir: '1.82', score: 100, recus, donnes };
+  const total = (z) => z.av + z.ar + z.ep + z.pi;
+  return {
+    pseudo,
+    effTir: '1.82',
+    score: 100,
+    recus,
+    donnes,
+    checks: {
+      recus: { lu: total(recus), attendu: total(recus) },
+      donnes: { lu: total(donnes), attendu: total(donnes) },
+    },
+  };
 }
 
 before(() => {

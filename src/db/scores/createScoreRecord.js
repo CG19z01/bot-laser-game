@@ -1,15 +1,16 @@
 import { getDb } from '../database.js';
 
 export function createScoreRecord(guildId, channelId, submittedBy, userId, extraction) {
-  const { pseudo, effTir, score, recus, donnes } = extraction;
+  const { pseudo, effTir, score, recus, donnes, checks } = extraction;
 
   const result = getDb()
     .prepare(
       `INSERT INTO score_records (
          guild_id, channel_id, submitted_by, user_id, pseudo, eff_tir, score,
+         recus_total, donnes_total,
          recus_av, recus_ar, recus_ep, recus_pi,
          donnes_av, donnes_ar, donnes_ep, donnes_pi
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       guildId,
@@ -19,6 +20,8 @@ export function createScoreRecord(guildId, channelId, submittedBy, userId, extra
       pseudo,
       effTir,
       score,
+      checks.recus.attendu,
+      checks.donnes.attendu,
       recus.av,
       recus.ar,
       recus.ep,

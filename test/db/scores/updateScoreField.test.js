@@ -24,6 +24,7 @@ const SAMPLE_EXTRACTION = {
   score: 2600,
   recus: { av: 1, ar: 2, ep: 3, pi: 4 },
   donnes: { av: 5, ar: 6, ep: 7, pi: 8 },
+  checks: { recus: { lu: 10, attendu: 10 }, donnes: { lu: 26, attendu: 26 } },
 };
 
 let recordId;

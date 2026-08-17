@@ -1,19 +1,16 @@
 // Commande /score : normalise la photo, extrait les valeurs de la feuille,
-// enregistre la partie et affiche le résultat.
-//
-// L'embed distingue explicitement une extraction vérifiée d'une extraction
-// douteuse : les totaux lus dans les tableaux sont comparés à ceux imprimés
-// en en-tête de la feuille. En cas d'écart, les chiffres sont affichés quand
-// même mais signalés, à corriger via /edit-score — jamais recalculés.
+// vérifie que la feuille n'a pas déjà été scannée, enregistre la partie et
+// affiche le résultat (mise en forme dans buildScoreEmbed.js).
 
-import { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, MessageFlags } from 'discord.js';
+import { SlashCommandBuilder, AttachmentBuilder, MessageFlags } from 'discord.js';
 import { normalizeImage } from '../../score/imageProcessor.js';
 import { extractScores } from '../../score/scoreExtractor.js';
 import { checkScoreCooldown } from '../../score/checkScoreCooldown.js';
 import { withOcrLock } from '../../score/withOcrLock.js';
 import { createScoreRecord } from '../../db/scores/createScoreRecord.js';
 import { getPlayerPseudo } from '../../db/pseudos/getPlayerPseudo.js';
-import { buildZoneLines } from '../../score/buildZoneLines.js';
+import { findDuplicateScore } from '../../db/scores/findDuplicateScore.js';
+import { buildScoreEmbed } from '../../score/buildScoreEmbed.js';
 import { ALLOWED_IMAGE_EXTENSIONS } from '../../config/scoreConfig.js';
 
 const ERROR_MESSAGES = {
@@ -24,43 +21,6 @@ const ERROR_MESSAGES = {
   GRID_NOT_FOUND: "Tableaux non détectés. Vérifie que la photo est nette et prise de face.",
   GRID_INCOMPLETE: "Les trois tableaux de la feuille ne sont pas tous visibles sur la photo.",
 };
-
-function checkLine({ lu, attendu }, label) {
-  if (attendu === null) return `⚠️ ${label} : total de contrôle illisible`;
-  if (lu !== attendu) return `⚠️ ${label} : ${lu} lus pour ${attendu} attendus`;
-  return `✅ ${label} : ${lu}`;
-}
-
-function buildEmbed(result, id) {
-  const reliable =
-    result.checks.recus.lu === result.checks.recus.attendu &&
-    result.checks.donnes.lu === result.checks.donnes.attendu;
-
-  const embed = new EmbedBuilder()
-    .setTitle(`Partie de ${result.pseudo}`)
-    .setImage('attachment://feuille.jpg')
-    .addFields(
-      { name: 'Coups reçus', value: buildZoneLines(result.recus), inline: true },
-      { name: 'Coups donnés', value: buildZoneLines(result.donnes), inline: true },
-      {
-        name: 'Vérification',
-        value: [checkLine(result.checks.recus, 'Reçus'), checkLine(result.checks.donnes, 'Donnés')].join('\n'),
-      }
-    )
-    .setColor(reliable ? 0x2ecc71 : 0xe67e22)
-    .setFooter({
-      text: reliable
-        ? `ID: ${id} • correction possible avec /edit-score`
-        : `ID: ${id} • ⚠️ chiffres à vérifier puis corriger avec /edit-score`,
-    });
-
-  const details = [];
-  if (result.effTir) details.push(`Eff. Tir : ${result.effTir} s`);
-  if (result.score !== null) details.push(`Score : ${result.score > 0 ? '+' : ''}${result.score}`);
-  if (details.length > 0) embed.setDescription(details.join(' • '));
-
-  return embed;
-}
 
 const scoreCommand = {
   data: new SlashCommandBuilder()
@@ -122,6 +82,15 @@ const scoreCommand = {
         return;
       }
 
+      const duplicate = findDuplicateScore(interaction.guildId, owner.id, result);
+      if (duplicate) {
+        await interaction.editReply({
+          content: `Cette feuille a déjà été enregistrée (score **#${duplicate.id}**, le ${duplicate.created_at}). Elle n'a pas été comptée une seconde fois.`,
+          allowedMentions: { parse: [] },
+        });
+        return;
+      }
+
       const id = createScoreRecord(
         interaction.guildId,
         interaction.channelId,
@@ -131,7 +100,7 @@ const scoreCommand = {
       );
       const file = new AttachmentBuilder(jpeg, { name: 'feuille.jpg' });
       await interaction.editReply({
-        embeds: [buildEmbed(result, id)],
+        embeds: [buildScoreEmbed(result, id)],
         files: [file],
         allowedMentions: { parse: [] },
       });

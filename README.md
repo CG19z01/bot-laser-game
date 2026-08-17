@@ -215,6 +215,15 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   la commande refuse au lieu d'enregistrer n'importe quoi. L'option
   `joueur` permet à un Référant de scanner la feuille de quelqu'un d'autre.
 
+  **Doublons** : une feuille déjà scannée n'est pas comptée deux fois. Le
+  bot compare les totaux imprimés en en-tête, le score et l'Eff. Tir de la
+  partie à celles déjà enregistrées pour ce joueur. Ces valeurs-là sont
+  choisies parce qu'elles se lisent de façon fiable ; les chiffres cellule
+  par cellule sont volontairement exclus de cette comparaison, l'OCR
+  pouvant en rater un et laisser passer le doublon. La date et le numéro de
+  partie auraient été une clé plus directe, mais leur impression est trop
+  petite pour être lue, même à pleine résolution.
+
   **Vérification automatique** : les totaux calculés sont comparés à ceux
   imprimés en en-tête de la feuille (« 26 Reçues Joueur(s) », « 39
   Données »). En cas d'écart, l'embed passe en orange et signale les

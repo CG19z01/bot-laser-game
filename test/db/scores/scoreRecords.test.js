@@ -22,6 +22,7 @@ const EXTRACTION = {
   score: 2600,
   recus: { av: 12, ar: 7, ep: 1, pi: 6 },
   donnes: { av: 23, ar: 6, ep: 4, pi: 6 },
+  checks: { recus: { lu: 26, attendu: 26 }, donnes: { lu: 39, attendu: 39 } },
 };
 
 before(() => initSchema());
@@ -49,6 +50,8 @@ test('createScoreRecord puis getScoreRecord renvoie les mêmes valeurs', () => {
   assert.equal(record.donnes_ar, 6);
   assert.equal(record.donnes_ep, 4);
   assert.equal(record.donnes_pi, 6);
+  assert.equal(record.recus_total, 26);
+  assert.equal(record.donnes_total, 39);
 });
 
 test('getScoreRecord renvoie undefined pour un ID inexistant', () => {

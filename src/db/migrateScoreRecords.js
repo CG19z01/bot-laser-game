@@ -10,8 +10,8 @@
 
 import { getDb } from './database.js';
 
-// Toute base dépourvue de user_id est antérieure à la refonte.
-const REQUIRED_COLUMN = 'user_id';
+// Toute base dépourvue de cette colonne est antérieure à la refonte.
+const REQUIRED_COLUMN = 'recus_total';
 
 export function migrateScoreRecords() {
   const columns = getDb().prepare('PRAGMA table_info(score_records)').all();
@@ -37,6 +37,8 @@ export function migrateScoreRecords() {
       pseudo       TEXT NOT NULL,
       eff_tir      TEXT,
       score        INTEGER,
+      recus_total  INTEGER,
+      donnes_total INTEGER,
       recus_av     INTEGER NOT NULL,
       recus_ar     INTEGER NOT NULL,
       recus_ep     INTEGER NOT NULL,
