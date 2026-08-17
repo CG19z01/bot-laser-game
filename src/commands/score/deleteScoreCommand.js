@@ -12,12 +12,13 @@ import { deleteScoreRecord } from '../../db/scores/deleteScoreRecord.js';
 import { sendLog } from '../../logs/sendLog.js';
 import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
 import { SCORE_ZONES } from '../../config/scoreConfig.js';
+import { discordTimestamp } from '../../score/discordTimestamp.js';
 
 const ALLOWED_ROLE_NAMES = COMMAND_ROLES['delete-score'];
 
 function summarize(record) {
   const total = (prefix) => SCORE_ZONES.reduce((sum, zone) => sum + record[`${prefix}_${zone.key}`], 0);
-  return `**${record.pseudo}** — ${total('recus')} reçus / ${total('donnes')} donnés (enregistré le ${record.created_at} UTC)`;
+  return `**${record.pseudo}** — ${total('recus')} reçus / ${total('donnes')} donnés (enregistré le ${discordTimestamp(record.created_at)})`;
 }
 
 const deleteScoreCommand = {

@@ -234,12 +234,24 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   `/edit-score`. Mesuré sur la feuille de référence : 47 cellules
   correctes sur 48, l'unique erreur étant bien signalée par ce contrôle.
 
+  **Réponses** : l'analyse et tous les refus (doublon, pseudo absent, photo
+  inexploitable) sont **éphémères** — visibles de toi seul, ils
+  n'encombrent pas le salon. Seul un enregistrement réussi produit un
+  message public avec l'embed et la photo. Les dates affichées utilisent
+  les balises temporelles Discord, donc chacun les voit dans son propre
+  fuseau (la base, elle, stocke en UTC).
+
   Ouverte à tous les membres, avec deux garde-fous (l'OCR est coûteux en
   RAM/CPU et le bot est mono-thread) :
   - **cooldown par utilisateur, modulé par le rôle** — Administrateur et
     STAFF sans limite, Référant 10s, tout le monde 60s (voir
     `SCORE_COOLDOWNS` dans `src/config/scoreConfig.js` ; un membre cumulant
-    plusieurs rôles bénéficie du délai le plus court) ;
+    plusieurs rôles bénéficie du délai le plus court). Le délai est **rendu**
+    si l'appel s'arrête avant l'analyse (pseudo manquant, format refusé,
+    analyse déjà en cours) : il protège le processeur, pas la commande. Il
+    reste en revanche consommé après une analyse, même si rien n'est
+    enregistré — sinon rescanner en boucle une feuille en doublon
+    relancerait l'OCR à chaque fois ;
   - **un seul OCR à la fois pour tout le bot**
     (`src/score/withOcrLock.js`) — les appels simultanés reçoivent un
     message leur demandant de réessayer, ce qui évite que plusieurs
