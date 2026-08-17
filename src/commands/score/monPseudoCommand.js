@@ -6,8 +6,7 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setPlayerPseudo } from '../../db/pseudos/setPlayerPseudo.js';
 import { getPlayerPseudo } from '../../db/pseudos/getPlayerPseudo.js';
-
-const MAX_LENGTH = 32;
+import { PSEUDO_MAX_LENGTH } from '../../config/scoreConfig.js';
 
 const monPseudoCommand = {
   data: new SlashCommandBuilder()
@@ -18,7 +17,7 @@ const monPseudoCommand = {
         .setName('pseudo')
         .setDescription('Pseudo tel qu\'il apparaît en haut de ta feuille de résultats')
         .setRequired(true)
-        .setMaxLength(MAX_LENGTH)
+        .setMaxLength(PSEUDO_MAX_LENGTH)
     ),
   async execute(interaction) {
     const pseudo = interaction.options.getString('pseudo', true).trim();

@@ -51,6 +51,15 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
 - Vérifier qu'aucun texte libre fourni par un utilisateur n'est renvoyé
   dans un message public sans `allowedMentions` restreint (risque de ping
   `@everyone`/rôle non désiré).
+- **Toujours passer un objet d'options** à `reply`/`editReply`/`followUp`,
+  jamais une chaîne brute : la forme `reply('texte')` ne peut pas porter
+  d'`allowedMentions`. Un test (`test/commands/publicReplies.test.js`) le
+  vérifie automatiquement — cette faille est déjà passée à travers une
+  revue de code complète, la relecture humaine ne suffit pas.
+- Se méfier du texte libre **stocké puis réaffiché plus tard** : un pseudo
+  saisi via `/mon-pseudo` ressortait dans un message public de
+  `/edit-score` exécuté par quelqu'un d'autre. Le point d'entrée et le
+  point d'affichage sont dans deux commandes différentes.
 - Après toute modification touchant permissions, stockage de secrets ou
   entrées utilisateur affichées publiquement, faire une relecture
   sécurité ciblée avant de committer.

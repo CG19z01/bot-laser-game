@@ -10,6 +10,10 @@ export const JPEG_QUALITY = 90;
 export const HEIC_EXTENSIONS = ['heic', 'heif'];
 export const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', ...HEIC_EXTENSIONS];
 
+// Longueur max d'un pseudo saisi (/mon-pseudo, /score) : au-delà, il
+// dépasserait la taille maximale d'un titre d'embed Discord.
+export const PSEUDO_MAX_LENGTH = 32;
+
 // Les 4 zones de capteurs, dans l'ordre des colonnes de la feuille
 // (gauche -> droite). `key` sert aussi de suffixe de colonne en base.
 export const SCORE_ZONES = [

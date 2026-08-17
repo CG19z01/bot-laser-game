@@ -17,7 +17,7 @@ import { getPlayerPseudo } from '../../db/pseudos/getPlayerPseudo.js';
 import { findDuplicateScore } from '../../db/scores/findDuplicateScore.js';
 import { buildScoreEmbed } from '../../score/buildScoreEmbed.js';
 import { discordTimestamp } from '../../score/discordTimestamp.js';
-import { ALLOWED_IMAGE_EXTENSIONS } from '../../config/scoreConfig.js';
+import { ALLOWED_IMAGE_EXTENSIONS, PSEUDO_MAX_LENGTH } from '../../config/scoreConfig.js';
 
 const ERROR_MESSAGES = {
   UNSUPPORTED_FORMAT: `Format d'image non supporté. Formats acceptés : ${ALLOWED_IMAGE_EXTENSIONS.join(', ')}.`,
@@ -36,7 +36,12 @@ const scoreCommand = {
       opt.setName('image').setDescription('Photo de la feuille de résultats').setRequired(true)
     )
     .addStringOption((opt) =>
-      opt.setName('pseudo').setDescription('Pseudo sur la feuille (par défaut : celui de /mon-pseudo)')
+      opt
+        .setName('pseudo')
+        .setDescription('Pseudo sur la feuille (par défaut : celui de /mon-pseudo)')
+        // Même limite que /mon-pseudo : au-delà, le pseudo dépasserait la
+        // taille maximale d'un titre d'embed et l'affichage échouerait.
+        .setMaxLength(PSEUDO_MAX_LENGTH)
     )
     .addUserOption((opt) =>
       opt.setName('joueur').setDescription('Membre à qui attribuer la partie (par défaut : toi)')

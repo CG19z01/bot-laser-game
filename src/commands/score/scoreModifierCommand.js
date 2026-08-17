@@ -48,9 +48,13 @@ const scoreModifierCommand = {
     const oldValue = record[field];
     updateScoreField(id, field, value);
 
-    await interaction.reply(
-      `✅ Score #${id} (${record.pseudo}) mis à jour : \`${field}\` ${oldValue} → ${value}`
-    );
+    // Le pseudo est du texte libre saisi par un membre : sans allowedMentions,
+    // un pseudo « @everyone » ferait pinguer tout le serveur depuis ce
+    // message public.
+    await interaction.reply({
+      content: `✅ Score #${id} (${record.pseudo}) mis à jour : \`${field}\` ${oldValue} → ${value}`,
+      allowedMentions: { parse: [] },
+    });
 
     await sendLog(
       interaction.client,
