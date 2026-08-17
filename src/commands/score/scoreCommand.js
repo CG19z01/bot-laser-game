@@ -4,9 +4,11 @@
 // construit l'embed Discord (avec la photo, pour comparaison directe par un
 // Référant dans le salon où la commande a été utilisée).
 
-import { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, MessageFlags } from 'discord.js';
 import { normalizeImage } from '../../score/imageProcessor.js';
 import { extractScores } from '../../score/scoreExtractor.js';
+import { checkScoreCooldown } from '../../score/checkScoreCooldown.js';
+import { withOcrLock } from '../../score/withOcrLock.js';
 import { createScoreRecord } from '../../db/scores/createScoreRecord.js';
 import { ALLOWED_IMAGE_EXTENSIONS, SCORE_ZONES } from '../../config/scoreConfig.js';
 
@@ -41,6 +43,17 @@ const scoreCommand = {
       opt.setName('image').setDescription('Photo de la feuille de résultats').setRequired(true)
     ),
   async execute(interaction) {
+    // Cooldown vérifié avant le defer : le refus reste éphémère et
+    // n'encombre pas le salon.
+    const waitSeconds = checkScoreCooldown(interaction.guildId, interaction.member);
+    if (waitSeconds > 0) {
+      await interaction.reply({
+        content: `Trop de scans d'affilée — réessaie dans ${waitSeconds} seconde(s).`,
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     await interaction.deferReply();
 
     const attachment = interaction.options.getAttachment('image', true);
@@ -50,7 +63,13 @@ const scoreCommand = {
       const buffer = Buffer.from(await rawResponse.arrayBuffer());
 
       const jpegBuffer = await normalizeImage(buffer, attachment.name ?? '');
-      const scores = await extractScores(jpegBuffer);
+      const { busy, result: scores } = await withOcrLock(() => extractScores(jpegBuffer));
+      if (busy) {
+        await interaction.editReply({
+          content: "Une autre analyse est déjà en cours — réessaie dans quelques secondes.",
+        });
+        return;
+      }
 
       const id = createScoreRecord(interaction.guildId, interaction.channelId, interaction.user.id, scores);
       const file = new AttachmentBuilder(jpegBuffer, { name: 'feuille.jpg' });

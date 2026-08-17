@@ -208,7 +208,17 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
   utilisée ; un pied de page signale une extraction incertaine si le compte
   de valeurs trouvées ne correspond pas à 8. Chaque étape (format non
   supporté, échec de conversion) renvoie un message d'erreur clair plutôt
-  qu'un crash. Ouverte à tous les membres.
+  qu'un crash. Ouverte à tous les membres, avec deux garde-fous (l'OCR est
+  coûteux en RAM/CPU et le bot est mono-thread) :
+  - **cooldown par utilisateur, modulé par le rôle** — Administrateur et
+    STAFF sans limite, Référant 10s, tout le monde 60s (voir
+    `SCORE_COOLDOWNS` dans `src/config/scoreConfig.js` ; un membre cumulant
+    plusieurs rôles bénéficie du délai le plus court) ;
+  - **un seul OCR à la fois pour tout le bot**
+    (`src/score/withOcrLock.js`) — les appels simultanés reçoivent un
+    message leur demandant de réessayer, ce qui évite que plusieurs
+    workers Tesseract lancés par des membres différents saturent la
+    mémoire.
 
 - `/edit-score <id> <champ> <valeur>` — corrige une valeur d'un score
   après comparaison visuelle entre la photo et le résultat affiché par

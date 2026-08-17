@@ -16,6 +16,22 @@
 | `/aide`               | (aucune)                 | (aucune)                | (aucune)                                  |
 | `/deco`               | Masquée par défaut (0n)  | Admin                   | Admin                                     |
 
+## Cooldown /score (comportement modul par le role)
+
+`/score` reste ouverte a tous, mais applique un delai entre deux scans,
+plus court selon le role (config : `SCORE_COOLDOWNS` dans
+`src/config/scoreConfig.js`) :
+
+| Role                    | Delai entre deux /score |
+|-------------------------|-------------------------|
+| Administrateur, STAFF   | aucun                   |
+| Referant                | 10 s                    |
+| tout le monde           | 60 s                    |
+
+Un membre cumulant plusieurs roles beneficie du delai le plus court. En
+complement, un seul OCR tourne a la fois pour tout le bot
+(`src/score/withOcrLock.js`).
+
 ## A faire cote Discord
 
 Toutes les commandes (sauf /score et /aide) sont masquees par defaut

@@ -3,9 +3,9 @@
 // dépendance à discord.js). Partagées entre plusieurs fichiers de test
 // pour éviter de dupliquer ces mocks.
 
-export function fakeMember(roleNames) {
+export function fakeMember(roleNames, id = 'user-1') {
   const roles = roleNames.map((name) => ({ name }));
-  return { roles: { cache: { some: (fn) => roles.some(fn) } } };
+  return { id, roles: { cache: { some: (fn) => roles.some(fn) } } };
 }
 
 export function fakeInteraction({ roleNames = [], deferred = false } = {}) {
