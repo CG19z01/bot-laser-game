@@ -1,9 +1,9 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setAntispamAction } from '../../db/antispam/setAntispamAction.js';
-import { requireRole } from '../../permissions/requireRole.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES.mute;
+const ACCESS = COMMAND_ACCESS.mute;
 
 const muteCommand = {
   data: new SlashCommandBuilder()
@@ -19,7 +19,7 @@ const muteCommand = {
         .setMaxValue(2419200)
     ),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const duration = interaction.options.getInteger('duration', true);
     setAntispamAction(interaction.guildId, 'mute', duration);

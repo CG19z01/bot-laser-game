@@ -4,14 +4,14 @@
 // la vérification par somme de contrôle signale l'écart sans le corriger.
 
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
-import { requireRole } from '../../permissions/requireRole.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
 import { getScoreRecord } from '../../db/scores/getScoreRecord.js';
 import { updateScoreField } from '../../db/scores/updateScoreField.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 import { SCORE_ZONES } from '../../config/scoreConfig.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES['edit-score'];
+const ACCESS = COMMAND_ACCESS['edit-score'];
 
 const FIELD_CHOICES = [
   ...SCORE_ZONES.map((zone) => ({ name: `Reçus - ${zone.label}`, value: `recus_${zone.key}` })),
@@ -33,7 +33,7 @@ const scoreModifierCommand = {
       opt.setName('valeur').setDescription('Nouvelle valeur').setRequired(true).setMinValue(0)
     ),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const id = interaction.options.getInteger('id', true);
     const field = interaction.options.getString('champ', true);

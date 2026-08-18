@@ -44,10 +44,12 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
   commit.
 - Pour toute commande donnant accès à une action sensible (modération,
   configuration du bot, suppression de messages, attribution de rôles,
-  gestion des membres), vérifier que la permission Discord requise est
-  bien posée (`setDefaultMemberPermissions` ou équivalent) — ne jamais
-  laisser une commande à fort impact accessible à `@everyone` par défaut
-  sans que ce soit un choix délibéré.
+  gestion des membres), déclarer dans `src/permissions/commandAccess.js`
+  le rôle nommé **et** la permission Discord réelle exigée. Un contrôle
+  par nom de rôle seul ne protège rien : un rôle décoratif nommé
+  « Administrateur », sans aucun pouvoir Discord, donnait accès à l'arrêt
+  du bot. `setDefaultMemberPermissions(0n)` ne masque que l'affichage,
+  il n'empêche pas l'exécution.
 - Vérifier qu'aucun texte libre fourni par un utilisateur n'est renvoyé
   dans un message public sans `allowedMentions` restreint (risque de ping
   `@everyone`/rôle non désiré).
@@ -97,7 +99,7 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
   `.env` listé dans `.gitignore`.
 - Toute nouvelle commande (ou changement de restriction sur une commande
   existante) doit être ajoutée/mise à jour dans `PERMISSIONS.md` **et**
-  dans `src/permissions/commandRoles.js` (source utilisée par `/aide`),
+  dans `src/permissions/commandAccess.js` (source utilisée par `/aide`),
   avec la même logique que le README : ne jamais laisser ces fichiers
   décrire un état de permissions qui ne correspond plus au code.
 
@@ -107,7 +109,7 @@ Ce fichier définit les règles à suivre par tout agent Claude travaillant sur 
 - Vérifier qu'aucun fichier ne dépasse 150 lignes.
 - Vérifier qu'aucune fonction n'est dupliquée.
 - Mettre à jour le README si la structure ou les commandes ont changé.
-- Mettre à jour `PERMISSIONS.md` et `src/permissions/commandRoles.js` si
+- Mettre à jour `PERMISSIONS.md` et `src/permissions/commandAccess.js` si
   une commande a été ajoutée ou si ses restrictions ont changé.
 - Vérifier les points de la section Sécurité (stockage des éléments à
   protéger, permissions des commandes sensibles, mentions non protégées).

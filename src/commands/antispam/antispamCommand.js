@@ -1,9 +1,9 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setAntispamLimit } from '../../db/antispam/setAntispamLimit.js';
-import { requireRole } from '../../permissions/requireRole.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES.antispam;
+const ACCESS = COMMAND_ACCESS.antispam;
 
 const antispamCommand = {
   data: new SlashCommandBuilder()
@@ -32,7 +32,7 @@ const antispamCommand = {
         )
     ),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const messages = interaction.options.getInteger('messages', true);
     const seconde = interaction.options.getInteger('seconde', true);

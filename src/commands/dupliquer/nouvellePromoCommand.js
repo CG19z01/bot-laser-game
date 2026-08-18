@@ -6,11 +6,11 @@
 
 import { SlashCommandBuilder, ChannelType, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { requireRole } from '../../permissions/requireRole.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 import { cloneCategoryWithChildren } from '../../permissions/cloneCategoryWithChildren.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES['nouvelle-promo'];
+const ACCESS = COMMAND_ACCESS['nouvelle-promo'];
 
 function transposeOverwrites(channel, roleSourceId, roleCibleId) {
   return channel.permissionOverwrites.cache.map((overwrite) => ({
@@ -47,7 +47,7 @@ const nouvellePromoCommand = {
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const source = interaction.options.getChannel('categorie', true);
     const newName = interaction.options.getString('nom', true);

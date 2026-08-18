@@ -6,15 +6,15 @@
 // pour qu'une erreur d'ID se voie immédiatement et puisse être ressaisie.
 
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
-import { requireRole } from '../../permissions/requireRole.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
 import { getScoreRecord } from '../../db/scores/getScoreRecord.js';
 import { deleteScoreRecord } from '../../db/scores/deleteScoreRecord.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 import { SCORE_ZONES } from '../../config/scoreConfig.js';
 import { discordTimestamp } from '../../score/discordTimestamp.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES['delete-score'];
+const ACCESS = COMMAND_ACCESS['delete-score'];
 
 function summarize(record) {
   const total = (prefix) => SCORE_ZONES.reduce((sum, zone) => sum + record[`${prefix}_${zone.key}`], 0);
@@ -34,7 +34,7 @@ const deleteScoreCommand = {
         .setMinValue(1)
     ),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const id = interaction.options.getInteger('id', true);
     const record = getScoreRecord(id);

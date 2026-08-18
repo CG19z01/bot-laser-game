@@ -4,11 +4,11 @@
 // redémarrage automatique : quelqu'un doit relancer `npm start` ensuite.
 
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
-import { requireRole } from '../../permissions/requireRole.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES.deco;
+const ACCESS = COMMAND_ACCESS.deco;
 
 const decoCommand = {
   data: new SlashCommandBuilder()
@@ -16,7 +16,7 @@ const decoCommand = {
     .setDescription('Déconnecte le bot (arrêt du process, redémarrage manuel requis)')
     .setDefaultMemberPermissions(0n),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     await interaction.reply({ content: '🔴 Déconnexion du bot en cours...', flags: MessageFlags.Ephemeral });
     await sendLog(interaction.client, `🔴 Bot déconnecté manuellement par ${interaction.user.tag} (\`/deco\`).`);

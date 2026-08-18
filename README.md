@@ -31,9 +31,9 @@ src/
 ├── autorole/              normalisation des émojis pour le rôle par réaction
 ├── polls/                 émojis utilisés pour le vote par date
 ├── logs/                  envoi des messages de log vers LOG_CHANNEL_ID
-├── permissions/           vérification de rôle par nom (STAFF, Référant...)
-│                          et rôles autorisés par commande (commandRoles.js,
-│                          utilisé par /aide)
+├── permissions/           contrôle d'accès : rôle nommé + permission
+│                          Discord réelle (commandAccess.js, hasAccess.js,
+│                          requireAccess.js), utilisé aussi par /aide
 ├── score/                 pipeline d'extraction /score : recadrage,
 │                          redressement, détection du quadrillage, OCR
 │                          cellule par cellule (Tesseract.js)
@@ -288,7 +288,9 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
 
 - `/aide` — liste, en réponse éphémère, les commandes que l'utilisateur qui
   l'invoque peut effectivement utiliser (filtrage par rôle via
-  `src/permissions/commandRoles.js`). Ouverte à tous.
+  `src/permissions/commandAccess.js`), permission Discord comprise : une
+  commande dont le rôle convient mais dont la permission manque n'est pas
+  listée. Ouverte à tous.
 
 - `/deco` — arrête le process du bot (`process.exit`), pas seulement la
   connexion Discord. Réservée au rôle **Administrateur** ; l'arrêt est
@@ -297,12 +299,27 @@ Ces trois commandes sont réservées aux rôles **Administrateur** et **STAFF**.
 
 ## Permissions
 
-Toutes les commandes (sauf `/score` et `/aide`) sont masquées par défaut dans le
-client Discord (`setDefaultMemberPermissions(0n)`) — le contrôle réel se
-fait par nom de rôle dans le code. Pour que STAFF/Référant les voient dans
-Discord, il faut aussi les ajouter manuellement par commande dans
-**Paramètres du serveur → Intégrations → Bot Laser Game**. Détail par
-commande dans [PERMISSIONS.md](./PERMISSIONS.md).
+Une commande restreinte exige **deux** conditions cumulatives : porter le
+rôle nommé (`Administrateur`, `STAFF`, `Référant`) **et** détenir la
+permission Discord correspondante. Le nom exprime l'organisation de la
+communauté — que Discord ne sait pas représenter, ses permissions ne
+permettant pas d'écrire « rôle A ou rôle B » — et la permission atteste du
+pouvoir réel. Sans cette seconde condition, un rôle purement décoratif
+nommé « Administrateur » suffisait à arrêter le bot ou à redistribuer des
+permissions.
+
+Les commandes de gestion des données du bot (`/equipe`, `/sondage`,
+`/edit-score`, `/delete-score`) n'exigent aucune permission Discord : elles
+ne touchent pas au serveur.
+
+S'y ajoute un masquage côté client (`setDefaultMemberPermissions(0n)`) pour
+toutes les commandes restreintes ; il faut les ouvrir aux rôles voulus dans
+**Paramètres du serveur → Intégrations → Bot Laser Game**. Ce masquage ne
+remplace pas le contrôle, il s'y ajoute.
+
+⚠️ Détail par commande, et **permissions à accorder au rôle
+`Administrateur`** (aujourd'hui dépourvu de toute permission Discord) :
+[PERMISSIONS.md](./PERMISSIONS.md).
 
 ## Conventions
 

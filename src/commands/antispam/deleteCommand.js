@@ -1,11 +1,11 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { setAntispamAction } from '../../db/antispam/setAntispamAction.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { requireRole } from '../../permissions/requireRole.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 
 const DEFAULT_USER_DELETE_COUNT = 10;
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES.delete;
+const ACCESS = COMMAND_ACCESS.delete;
 
 async function purgeMessages(channel, count, userId) {
   if (!userId) {
@@ -46,7 +46,7 @@ const deleteCommand = {
         .setMaxValue(100)
     ),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const user = interaction.options.getUser('user');
     const nombre = interaction.options.getInteger('nombre');

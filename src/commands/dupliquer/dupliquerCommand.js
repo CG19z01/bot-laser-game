@@ -1,11 +1,11 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { hasRoleNamed } from '../../permissions/hasRoleNamed.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
 import { resolveRolesByNames } from '../../permissions/resolveRolesByNames.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 import { cloneCategoryWithChildren } from '../../permissions/cloneCategoryWithChildren.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES['copie-cat'];
+const ACCESS = COMMAND_ACCESS['copie-cat'];
 const ACCESS_PERMISSIONS = [
   PermissionFlagsBits.ViewChannel,
   PermissionFlagsBits.SendMessages,
@@ -45,12 +45,11 @@ const dupliquerCommand = {
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    if (!hasRoleNamed(interaction.member, ALLOWED_ROLE_NAMES)) {
+    if (!(await requireAccess(interaction, ACCESS))) {
       await sendLog(
         interaction.client,
-        `⛔ ${interaction.user.tag} a tenté \`/copie-cat\` sans le rôle Administrateur.`
+        `⛔ ${interaction.user.tag} a tenté \`/copie-cat\` sans les droits requis.`
       );
-      await interaction.editReply({ content: 'Réservé au rôle Administrateur.' });
       return;
     }
 
@@ -63,7 +62,7 @@ const dupliquerCommand = {
         .map((name) => name.trim())
         .filter((name) => name.length > 0) ?? [];
 
-    const roleNames = [...ALLOWED_ROLE_NAMES, ...extraRoleNames];
+    const roleNames = [...ACCESS.roles, ...extraRoleNames];
     const resolved = resolveRolesByNames(interaction.guild, roleNames);
     const missing = resolved.filter((r) => !r.role);
     if (missing.length > 0) {

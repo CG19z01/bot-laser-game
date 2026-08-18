@@ -1,9 +1,9 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { requireRole } from '../../permissions/requireRole.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES.equipe;
+const ACCESS = COMMAND_ACCESS.equipe;
 
 // Exportées (en plus de l'export par défaut de la commande) uniquement
 // pour être testées unitairement — pas d'autre appelant en dehors de ce
@@ -47,7 +47,7 @@ const equipesCommand = {
         .setRequired(true)
     ),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const teamCount = interaction.options.getInteger('equipes', true);
     const expectedCount = interaction.options.getInteger('nombre', true);

@@ -1,12 +1,12 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { createPoll } from '../../db/polls/createPoll.js';
 import { sendLog } from '../../logs/sendLog.js';
-import { requireRole } from '../../permissions/requireRole.js';
+import { requireAccess } from '../../permissions/requireAccess.js';
 import { DATE_EMOJIS } from '../../polls/dateEmojis.js';
-import { COMMAND_ROLES } from '../../permissions/commandRoles.js';
+import { COMMAND_ACCESS } from '../../permissions/commandAccess.js';
 
 const DATE_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
-const ALLOWED_ROLE_NAMES = COMMAND_ROLES.sondage;
+const ACCESS = COMMAND_ACCESS.sondage;
 
 // Exportée (en plus de l'export par défaut) uniquement pour être testée
 // unitairement — pas d'autre appelant en dehors de ce fichier.
@@ -55,7 +55,7 @@ const sondageCommand = {
         )
     ),
   async execute(interaction) {
-    if (!(await requireRole(interaction, ALLOWED_ROLE_NAMES))) return;
+    if (!(await requireAccess(interaction, ACCESS))) return;
 
     const lieu = interaction.options.getString('evenement', true);
     const ville = interaction.options.getString('ville', true);
